@@ -1,0 +1,6 @@
+Ana,25
+Luis,32
+María,28
+Jorge,30
+Oscar,10
+Carlos,40

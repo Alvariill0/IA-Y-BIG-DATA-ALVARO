@@ -1,0 +1,47 @@
+[
+    {
+        "id": 1,
+        "nombre": "Ana",
+        "apellidos": "Gomez",
+        "LugaresTrabajo": [
+            "Madrid",
+            "Barcelona"
+        ],
+        "Genero": "Mujer",
+        "Edad": 30,
+        "Skill": [
+            {
+                "nombre": "Python",
+                "nivel": 80
+            },
+            {
+                "nombre": "JavaScript",
+                "nivel": 88
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "nombre": "Juan",
+        "apellidos": "Martinez",
+        "LugaresTrabajo": [
+            "Sevilla"
+        ],
+        "Genero": "Hombre",
+        "Edad": 35,
+        "Skill": [
+            {
+                "nombre": "JavaScript",
+                "nivel": 85
+            }
+        ]
+    },
+    {
+        
+    }
+    
+
+
+]
+
+
