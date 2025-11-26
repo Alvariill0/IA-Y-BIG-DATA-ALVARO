@@ -1,22 +1,22 @@
 # Diccionario animales : 
 animales = {
-    "pregunta": "¿Tiene plumas?",
+    "pregunta": "¿Tiene plumas?: ",
     "si": {
-        "pregunta": "¿Es un gorrión?",
+        "pregunta": "¿Es un gorrión?: ",
         "si": {"animal": "gorrión"},
         "no": {"animal": None}   
     },
     "no": {
-        "pregunta": "¿Tiene 4 patas?",
+        "pregunta": "¿Tiene 4 patas?: ",
         "si": {
             "pregunta": "¿Es un perro?",
             "si": {"animal": "perro"},
             "no": {"animal": None}
         },
         "no": {
-            "pregunta": "¿Vive en el mar?",
+            "pregunta": "¿Vive en el mar?: ",
             "si": {
-                "pregunta": "¿Es una sardina?",
+                "pregunta": "¿Es una sardina?: ",
                 "si": {"animal": "sardina"},
                 "no": {"animal": None}
             },
@@ -96,7 +96,7 @@ while True:
         aprender(nodo, "desconocido")
         
     # preguntar si quieren jugar otra vez
-    seguir = preguntar_si_no("¿Quieres jugar otra vez?")
+    seguir = preguntar_si_no("¿Quieres jugar otra vez?: ")
     if seguir == "no":
-        print("Hasta luego!")
+        print("Chao pescao")
         break
