@@ -1,430 +1,212 @@
-"""
-
-EJERCICIO 3 -Entrega Parcial 1 - ÁLVARO FERNANDEZ BECERRA
-
-Módulo para comunicación con la base de datos. Debe incluir:
-
-o   Insertar datos de países, fronteras y temperaturas
-
-o   Recuperar datos de países, temperaturas, fronteras y temperaturas de las fronteras.
-"""
+# EJERCICIO 3 - Entrega Parcial 1 - ALVARO FERNANDEZ BECERRA
+# Módulo para comunicación con la base de datos.
+# Debe incluir:
+# o Insertar datos de países, fronteras y temperaturas
+# o Recuperar datos de países, temperaturas, fronteras y temperaturas de las fronteras.
 
 import mysql.connector
+import json
 from datetime import datetime
 
-
-#  CONFIGURACIÓN 
-
+# CONFIGURACIÓN DE LA BASE DE DATOS
 CONFIG_DB = {
     'host': 'localhost',
     'user': 'root',
-    'password': '',  # Pon aquí tu contraseña
+    'password': '',
     'database': 'temperaturas'
 }
 
-
-#  CONEXIÓN 
-
 def conectar_bd():
     """
-    Crea y devuelve una conexión a la base de datos
+    Crea y devuelve una conexión a la base de datos.
     """
-    conexion = mysql.connector.connect(
-        host=CONFIG_DB['host'],
-        user=CONFIG_DB['user'],
-        password=CONFIG_DB['password'],
-        database=CONFIG_DB['database']
-    )
+    conexion = mysql.connector.connect(**CONFIG_DB)
     return conexion
-
-
-# ==================== INSERCIÓN DE DATOS ====================
 
 def insertar_pais(conexion, cca2, cca3, nombre, capital, region, subregion, miembro_ue, latitud=None, longitud=None):
     """
-    Inserta un país en la base de datos
-    
-    Parámetros:
-        conexion: conexión a la base de datos
-        cca2: código de 2 letras del país
-        cca3: código de 3 letras del país
-        nombre: nombre del país
-        capital: capital del país
-        region: región geográfica
-        subregion: subregión geográfica
-        miembro_ue: True si es miembro de la UE, False si no
-        latitud: latitud de la capital (opcional)
-        longitud: longitud de la capital (opcional)
-    
-    Devuelve:
-        El ID del país insertado
+    Inserta un país en la base de datos.
     """
     cursor = conexion.cursor()
-    
     consulta = """
-        INSERT INTO paises 
-        (cca2, cca3, nombre, capital, region, subregion, miembroUE, latitud, longitud) 
+        INSERT INTO paises (cca2, cca3, nombre, capital, region, subregion, miembroUE, latitud, longitud)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-    
     valores = (cca2, cca3, nombre, capital, region, subregion, miembro_ue, latitud, longitud)
-    
     cursor.execute(consulta, valores)
     conexion.commit()
-    
     id_pais = cursor.lastrowid
-    
     cursor.close()
-    
     return id_pais
 
-
-def insertar_frontera(conexion, idpais, cca3_frontera):
+def insertar_frontera(conexion, id_pais, cca3_frontera):
     """
-    Inserta una frontera para un país
-    
-    Parámetros:
-        conexion: conexión a la base de datos
-        idpais: ID del país
-        cca3_frontera: código cca3 del país fronterizo
+    Inserta una frontera para un país.
     """
     cursor = conexion.cursor()
-    
-    consulta = "INSERT INTO fronteras (idpais, cca3_frontera) VALUES (%s, %s)"
-    valores = (idpais, cca3_frontera)
-    
+    consulta = """
+        INSERT INTO fronteras (idpais, cca3frontera)
+        VALUES (%s, %s)
+    """
+    valores = (id_pais, cca3_frontera)
     cursor.execute(consulta, valores)
     conexion.commit()
-    
     cursor.close()
 
-
-def insertar_temperatura(conexion, idpais, timestamp, temperatura, sensacion, minima, maxima, humedad, amanecer, atardecer):
+def insertar_temperatura(conexion, id_pais, timestamp, temperatura, sensacion, minima, maxima, humedad, amanecer, atardecer):
     """
-    Inserta un registro de temperatura para un país
-    
-    Parámetros:
-        conexion: conexión a la base de datos
-        idpais: ID del país
-        timestamp: fecha y hora del registro (datetime)
-        temperatura: temperatura actual
-        sensacion: sensación térmica
-        minima: temperatura mínima
-        maxima: temperatura máxima
-        humedad: porcentaje de humedad
-        amanecer: hora de amanecer (formato "HH:MM:SS")
-        atardecer: hora de atardecer (formato "HH:MM:SS")
-    
-    Devuelve:
-        El ID del registro de temperatura insertado
+    Inserta un registro de temperatura para un país.
     """
     cursor = conexion.cursor()
-    
     consulta = """
-        INSERT INTO temperaturas 
-        (idpais, timestamp, temperatura, sensacion, minima, maxima, humedad, amanecer, atardecer) 
+        INSERT INTO temperaturas (idpais, timestamp, temperatura, sensacion, minima, maxima, humedad, amanecer, atardecer)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-    
-    valores = (idpais, timestamp, temperatura, sensacion, minima, maxima, humedad, amanecer, atardecer)
-    
+    valores = (id_pais, timestamp, temperatura, sensacion, minima, maxima, humedad, amanecer, atardecer)
     cursor.execute(consulta, valores)
     conexion.commit()
-    
-    id_temperatura = cursor.lastrowid
-    
     cursor.close()
-    
-    return id_temperatura
-
-
-# ==================== RECUPERACIÓN DE DATOS ====================
 
 def obtener_todos_paises(conexion):
     """
-    Obtiene todos los países de la base de datos
-    
-    Devuelve:
-        Lista de diccionarios con los datos de cada país
+    Obtiene todos los países de la base de datos.
     """
     cursor = conexion.cursor(dictionary=True)
-    
     consulta = """
-        SELECT idpais, cca2, cca3, nombre, capital, region, subregion, miembroUE, latitud, longitud 
-        FROM paises 
+        SELECT idpais, cca2, cca3, nombre, capital, region, subregion, miembroUE, latitud, longitud
+        FROM paises
         ORDER BY nombre
     """
-    
     cursor.execute(consulta)
     paises = cursor.fetchall()
-    
     cursor.close()
-    
     return paises
 
-
-def obtener_pais_por_nombre(conexion, nombre):
+def obtener_temperaturas(conexion):
     """
-    Busca un país por su nombre
-    
-    Parámetros:
-        conexion: conexión a la base de datos
-        nombre: nombre del país a buscar
-    
-    Devuelve:
-        Diccionario con los datos del país (o None si no se encuentra)
+    Recupera datos de temperaturas con nombre del país.
     """
     cursor = conexion.cursor(dictionary=True)
-    
     consulta = """
-        SELECT idpais, cca2, cca3, nombre, capital, region, subregion, miembroUE, latitud, longitud 
-        FROM paises 
-        WHERE nombre LIKE %s
-    """
-    
-    cursor.execute(consulta, (f"%{nombre}%",))
-    pais = cursor.fetchone()
-    
-    cursor.close()
-    
-    return pais
-
-
-def obtener_pais_por_cca3(conexion, cca3):
-    """
-    Busca un país por su código cca3
-    
-    Parámetros:
-        conexion: conexión a la base de datos
-        cca3: código cca3 del país
-    
-    Devuelve:
-        Diccionario con los datos del país (o None si no se encuentra)
-    """
-    cursor = conexion.cursor(dictionary=True)
-    
-    consulta = """
-        SELECT idpais, cca2, cca3, nombre, capital, region, subregion, miembroUE, latitud, longitud 
-        FROM paises 
-        WHERE cca3 = %s
-    """
-    
-    cursor.execute(consulta, (cca3,))
-    pais = cursor.fetchone()
-    
-    cursor.close()
-    
-    return pais
-
-
-def obtener_fronteras_pais(conexion, idpais):
-    """
-    Obtiene todas las fronteras de un país
-    
-    Parámetros:
-        conexion: conexión a la base de datos
-        idpais: ID del país
-    
-    Devuelve:
-        Lista de diccionarios con los datos de las fronteras
-    """
-    cursor = conexion.cursor(dictionary=True)
-    
-    consulta = """
-        SELECT f.idfronteras, f.idpais, f.cca3_frontera, p.nombre as nombre_frontera
-        FROM fronteras f
-        LEFT JOIN paises p ON f.cca3_frontera = p.cca3
-        WHERE f.idpais = %s
-    """
-    
-    cursor.execute(consulta, (idpais,))
-    fronteras = cursor.fetchall()
-    
-    cursor.close()
-    
-    return fronteras
-
-
-def obtener_temperatura_mas_reciente(conexion, idpais):
-    """
-    Obtiene la temperatura más reciente de un país
-    
-    Parámetros:
-        conexion: conexión a la base de datos
-        idpais: ID del país
-    
-    Devuelve:
-        Diccionario con los datos de temperatura (o None si no hay registros)
-    """
-    cursor = conexion.cursor(dictionary=True)
-    
-    consulta = """
-        SELECT t.*, p.nombre, p.capital
+        SELECT t.*, p.nombre, p.cca3
         FROM temperaturas t
         JOIN paises p ON t.idpais = p.idpais
-        WHERE t.idpais = %s
         ORDER BY t.timestamp DESC
-        LIMIT 1
     """
+    cursor.execute(consulta)
+    temperaturas = cursor.fetchall()
+    cursor.close()
+    return temperaturas
+
+def obtener_fronteras(conexion):
+    """
+    Recupera datos de fronteras con nombres de países.
+    """
+    cursor = conexion.cursor(dictionary=True)
+    consulta = """
+        SELECT f.*, p.nombre AS pais_nombre, pf.nombre AS frontera_nombre
+        FROM fronteras f
+        JOIN paises p ON f.idpais = p.idpais
+        LEFT JOIN paises pf ON f.cca3frontera = pf.cca3
+        ORDER BY p.nombre
+    """
+    cursor.execute(consulta)
+    fronteras = cursor.fetchall()
+    cursor.close()
+    return fronteras
+
+def obtener_temperaturas_fronteras(conexion, nombre_pais):
+    """
+    Obtiene temperaturas de un país y sus países fronterizos.
+    """
+    cursor = conexion.cursor(dictionary=True)
     
-    cursor.execute(consulta, (idpais,))
-    temperatura = cursor.fetchone()
+    # Buscar el país
+    cursor.execute("SELECT idpais FROM paises WHERE nombre = %s", (nombre_pais,))
+    pais_result = cursor.fetchone()
+    if not pais_result:
+        cursor.close()
+        return None
+    id_pais = pais_result['idpais']
+    
+    # Temperatura del país
+    cursor.execute("""
+        SELECT t.* FROM temperaturas t
+        WHERE t.idpais = %s
+        ORDER BY t.timestamp DESC LIMIT 1
+    """, (id_pais,))
+    temp_pais = cursor.fetchone()
+    
+    # Fronteras con temperaturas
+    cursor.execute("""
+        SELECT DISTINCT pf.nombre AS frontera_nombre, pf.cca3, t.*
+        FROM fronteras f
+        JOIN paises pf ON f.cca3frontera = pf.cca3
+        JOIN temperaturas t ON pf.idpais = t.idpais
+        WHERE f.idpais = %s
+        ORDER BY pf.nombre, t.timestamp DESC
+    """, (id_pais,))
+    temps_fronteras = cursor.fetchall()
     
     cursor.close()
-    
-    return temperatura
-
-
-def obtener_temperaturas_pais_y_fronteras(conexion, nombre_pais):
-    """
-    Obtiene la temperatura de un país y de sus países fronterizos
-    
-    ESTA FUNCIÓN IMPLEMENTA EL PUNTO 3 DEL EJERCICIO:
-    "Obtener de la base de datos la temperatura de un país y sus fronterizos 
-    a partir de país dado por usuario"
-    
-    Parámetros:
-        conexion: conexión a la base de datos
-        nombre_pais: nombre del país
-    
-    Devuelve:
-        Diccionario con:
-        - 'pais': datos del país
-        - 'temperatura_pais': temperatura del país
-        - 'fronteras': lista con datos y temperaturas de países fronterizos
-    """
-    # 1. Buscar el país por nombre
-    pais = obtener_pais_por_nombre(conexion, nombre_pais)
-    
-    if pais is None:
-        return None
-    
-    # 2. Obtener temperatura del país
-    temperatura_pais = obtener_temperatura_mas_reciente(conexion, pais['idpais'])
-    
-    # 3. Obtener fronteras del país
-    fronteras = obtener_fronteras_pais(conexion, pais['idpais'])
-    
-    # 4. Para cada frontera, obtener datos del país y su temperatura
-    lista_fronteras = []
-    
-    for frontera in fronteras:
-        pais_fronterizo = obtener_pais_por_cca3(conexion, frontera['cca3_frontera'])
-        
-        if pais_fronterizo is not None:
-            temperatura_frontera = obtener_temperatura_mas_reciente(conexion, pais_fronterizo['idpais'])
-            
-            lista_fronteras.append({
-                'pais': pais_fronterizo,
-                'temperatura': temperatura_frontera
-            })
-    
-    # 5. Devolver todos los datos organizados
-    resultado = {
-        'pais': pais,
-        'temperatura_pais': temperatura_pais,
-        'fronteras': lista_fronteras
+    return {
+        'pais': nombre_pais,
+        'temp_pais': temp_pais,
+        'temps_fronteras': temps_fronteras
     }
-    
-    return resultado
 
-
-# ==================== EJEMPLO DE USO ====================
-
-def ejemplo():
+def insertar_desde_json(conexion, ruta_json):
     """
-    Ejemplo de cómo usar las funciones del módulo
+    Inserta datos de países y fronteras desde JSON (temperaturas pendientes).
     """
-    print("=== EJEMPLO DE USO DEL MÓDULO ===\n")
+    with open(ruta_json, 'r', encoding='utf-8') as f:
+        datos = json.load(f)
     
-    # 1. Conectar a la base de datos
-    print("1. Conectando a la base de datos...")
+    for pais_data in datos:
+        cca2 = pais_data['cca2']
+        cca3 = pais_data['cca3']
+        nombre = pais_data['name']['common']
+        capital = pais_data.get('capital', [''])[0] if pais_data.get('capital') else ''
+        region = pais_data['region']
+        subregion = pais_data.get('subregion', '')
+        latlng = pais_data.get('latlng', [None, None])
+        latitud, longitud = latlng[0], latlng[1]
+        miembro_ue = 1 if any(c in cca3 for c in ['ESP', 'FRA', 'DEU', 'ITA', 'BEL', 'NLD', 'LUX', 'AUT', 'PRT']) else 0
+        
+        id_pais = insertar_pais(conexion, cca2, cca3, nombre, capital, region, subregion, miembro_ue, latitud, longitud)
+        
+        borders = pais_data.get('borders', [])
+        for cca3_frontera in borders:
+            insertar_frontera(conexion, id_pais, cca3_frontera)
+
+# FUNCIÓN DE PRUEBA (mínima)
+def prueba():
+    print("=== PRUEBA MÓDULO BD ===")
     conexion = conectar_bd()
-    print("   ✓ Conexión establecida\n")
     
-    # 2. Insertar un país
-    print("2. Insertando país de ejemplo (Spain)...")
-    id_pais = insertar_pais(
-        conexion,
-        cca2="ES",
-        cca3="ESP",
-        nombre="Spain",
-        capital="Madrid",
-        region="Europe",
-        subregion="Southern Europe",
-        miembro_ue=True,
-        latitud=40.4168,
-        longitud=-3.7038
-    )
-    print(f"   ✓ País insertado con ID: {id_pais}\n")
+    # Insertar desde JSON (países y fronteras)
+    print("1. Insertando desde PaisesEuropa.json...")
+    insertar_desde_json(conexion, "PaisesEuropa.json")
     
-    # 3. Insertar fronteras
-    print("3. Insertando fronteras de Spain...")
-    fronteras = ["FRA", "PRT", "AND"]
-    for frontera in fronteras:
-        insertar_frontera(conexion, id_pais, frontera)
-    print(f"   ✓ {len(fronteras)} fronteras insertadas\n")
-    
-    # 4. Insertar temperatura
-    print("4. Insertando temperatura...")
-    id_temp = insertar_temperatura(
-        conexion,
-        idpais=id_pais,
-        timestamp=datetime.now(),
-        temperatura=15.5,
-        sensacion=14.0,
-        minima=12.0,
-        maxima=18.0,
-        humedad=65.0,
-        amanecer="07:30:00",
-        atardecer="18:45:00"
-    )
-    print(f"   ✓ Temperatura insertada con ID: {id_temp}\n")
-    
-    # 5. Recuperar todos los países
-    print("5. Recuperando todos los países...")
+    # Recuperar datos
+    print("\n2. Todos los países:")
     paises = obtener_todos_paises(conexion)
-    print(f"   ✓ Total de países en la BD: {len(paises)}\n")
+    print(f"Total: {len(paises)} países")
     
-    # 6. Buscar un país por nombre
-    print("6. Buscando país 'Spain'...")
-    pais = obtener_pais_por_nombre(conexion, "Spain")
-    if pais:
-        print(f"   ✓ Encontrado: {pais['nombre']} - {pais['capital']}\n")
+    print("\n3. Temperaturas:")
+    temps = obtener_temperaturas(conexion)
+    print(f"Total: {len(temps)} registros")
     
-    # 7. Obtener fronteras
-    print("7. Obteniendo fronteras de Spain...")
-    fronteras = obtener_fronteras_pais(conexion, id_pais)
-    print(f"   ✓ Fronteras: {[f['cca3_frontera'] for f in fronteras]}\n")
+    print("\n4. Fronteras:")
+    frs = obtener_fronteras(conexion)
+    print(f"Total: {len(frs)} fronteras")
     
-    # 8. Obtener temperatura más reciente
-    print("8. Obteniendo temperatura más reciente...")
-    temp = obtener_temperatura_mas_reciente(conexion, id_pais)
-    if temp:
-        print(f"   ✓ Temperatura en {temp['capital']}: {temp['temperatura']}°C\n")
+    print("\n5. Temps. España y fronteras:")
+    res = obtener_temperaturas_fronteras(conexion, "Spain")
+    print(res)
     
-    # 9. Obtener temperatura de país y fronteras (PUNTO 3)
-    print("9. Obteniendo temperatura de país y fronteras...")
-    resultado = obtener_temperaturas_pais_y_fronteras(conexion, "Spain")
-    if resultado:
-        print(f"   ✓ País: {resultado['pais']['nombre']}")
-        if resultado['temperatura_pais']:
-            print(f"   ✓ Temperatura: {resultado['temperatura_pais']['temperatura']}°C")
-        print(f"   ✓ Fronteras con datos: {len(resultado['fronteras'])}\n")
-    
-    # 10. Cerrar conexión
-    print("10. Cerrando conexión...")
     conexion.close()
-    print("    ✓ Conexión cerrada\n")
-    
-    print("=== FIN DEL EJEMPLO ===")
-
+    print("Prueba completada.")
 
 if __name__ == "__main__":
-    # Al ejecutar este archivo directamente, se muestra el ejemplo
-    # NOTA: Asegúrate de cambiar la contraseña en CONFIG_DB antes de ejecutar
-    print("Para usar este módulo, impórtalo en tu programa principal:")
-    print("  import db_module")
-    print("  conexion = db_module.conectar_bd()")
-    print("\nPara ver un ejemplo completo, descomenta la siguiente línea:\n")
-    # ejemplo()
+    prueba()
