@@ -1,0 +1,105 @@
+"ejercicio_1_persona": {
+  "descripcion": "Información de una persona",
+  "plantilla": {
+    "nombre": "Juan Pérez",
+    "edad": 30,
+    "ciudad": "Madrid"
+    }
+  },
+    "ejercicio_2_producto": {
+      "descripcion": "Producto básico",
+      "plantilla": {
+        "nombre": "Laptop HP",
+        "precio": 899.99,
+        "existencias": 15
+      }
+    },
+    "ejercicio_3_pelicula": {
+      "descripcion": "Película con uno o más géneros",
+      "plantilla": {
+        "titulo": "El Padrino",
+        "director": "Francis Ford Coppola",
+        "año": 1972,
+        "genero": [
+          "Drama",
+          "Crimen"
+        ]
+      }
+    },
+    "ejercicio_4_lista_tareas": {
+      "descripcion": "Lista de tareas",
+      "plantilla": [
+        {
+          "identificador": 1,
+          "descripcion": "Comprar leche",
+          "completada": false
+        },
+        {
+          "identificador": 2,
+          "descripcion": "Llamar al médico",
+          "completada": true
+        },
+        {
+          "identificador": 3,
+          "descripcion": "Revisar correo electrónico",
+          "completada": false
+        }
+      ]
+    },
+    "ejercicio_5_compañia": {
+      "descripcion": "Compañía con empleados",
+      "plantilla": {
+        "nombre": "TechCorp S.L.",
+        "ubicacion": "Barcelona",
+        "empleados": [
+          {
+            "nombre": "María García",
+            "cargo": "Directora de Tecnología",
+            "edad": 42
+          },
+          {
+            "nombre": "Carlos López",
+            "cargo": "Desarrollador Senior",
+            "edad": 35
+          },
+          {
+            "nombre": "Ana Martínez",
+            "cargo": "Diseñadora UX",
+            "edad": 28
+          }
+        ]
+      }
+    },
+    "ejercicio_6_producto_ampliado": {
+      "descripcion": "Producto con características y comentarios",
+      "plantilla": {
+        "nombre": "Samsung Galaxy S24",
+        "precio": 999,
+        "existencias": 25,
+        "caracteristicas": {
+          "pantalla": "6.2 pulgadas AMOLED",
+          "resolucion": "2340 x 1080",
+          "sistema_operativo": "Android 14",
+          "procesador": "Snapdragon 8 Gen 3",
+          "ram": "8 GB",
+          "almacenamiento": "256 GB"
+        },
+        "comentarios": [
+          {
+            "usuario": "Pedro Sánchez",
+            "puntuacion": 5,
+            "opinion": "Excelente teléfono, la batería dura todo el día y la cámara es impresionante."
+          },
+          {
+            "usuario": "Laura Fernández",
+            "puntuacion": 4,
+            "opinion": "Muy buen producto, aunque el precio es un poco elevado. La pantalla es espectacular."
+          },
+          {
+            "usuario": "Miguel Rodríguez",
+            "puntuacion": 5,
+            "opinion": "El mejor móvil que he tenido. Rápido, fluido y con una calidad de construcción premium."
+          }
+        ]
+      }
+    }
