@@ -6,16 +6,18 @@
 
 import mysql.connector
 import json
+import os
 from datetime import datetime
 
 # CONFIGURACIÓN DE LA BASE DE DATOS
 CONFIG_DB = {
     'host': 'localhost',
     'user': 'root',
-    'password': '',
+    'password': 'alvaro',
     'database': 'temperaturas'
 }
-
+API_KEY = "fa905b4ca52cfdbb2ed4d595dd07d816"
+API_URL = "https://api.openweathermap.org/data/2.5/weather"
 def conectar_bd():
     """
     Crea y devuelve una conexión a la base de datos.
@@ -45,7 +47,7 @@ def insertar_frontera(conexion, id_pais, cca3_frontera):
     """
     cursor = conexion.cursor()
     consulta = """
-        INSERT INTO fronteras (idpais, cca3frontera)
+        INSERT INTO fronteras (idpais, cca3_frontera)
         VALUES (%s, %s)
     """
     valores = (id_pais, cca3_frontera)
@@ -107,7 +109,7 @@ def obtener_fronteras(conexion):
         SELECT f.*, p.nombre AS pais_nombre, pf.nombre AS frontera_nombre
         FROM fronteras f
         JOIN paises p ON f.idpais = p.idpais
-        LEFT JOIN paises pf ON f.cca3frontera = pf.cca3
+        LEFT JOIN paises pf ON f.cca3_frontera = pf.cca3
         ORDER BY p.nombre
     """
     cursor.execute(consulta)
@@ -141,7 +143,7 @@ def obtener_temperaturas_fronteras(conexion, nombre_pais):
     cursor.execute("""
         SELECT DISTINCT pf.nombre AS frontera_nombre, pf.cca3, t.*
         FROM fronteras f
-        JOIN paises pf ON f.cca3frontera = pf.cca3
+            JOIN paises pf ON f.cca3_frontera = pf.cca3
         JOIN temperaturas t ON pf.idpais = t.idpais
         WHERE f.idpais = %s
         ORDER BY pf.nombre, t.timestamp DESC
@@ -157,9 +159,14 @@ def obtener_temperaturas_fronteras(conexion, nombre_pais):
 
 def insertar_desde_json(conexion, ruta_json):
     """
-    Inserta datos de países y fronteras desde JSON (temperaturas pendientes).
+    Inserta datos de países y fronteras desde JSON.
     """
-    with open(ruta_json, 'r', encoding='utf-8') as f:
+    # Manejar rutas absolutas / relativas
+    ruta = ruta_json if os.path.isabs(ruta_json) else os.path.join(os.path.dirname(__file__), ruta_json)
+    if not os.path.exists(ruta):
+        raise FileNotFoundError(f"No se encuentra el archivo JSON: {ruta}")
+
+    with open(ruta, 'r', encoding='utf-8') as f:
         datos = json.load(f)
     
     for pais_data in datos:
@@ -179,34 +186,54 @@ def insertar_desde_json(conexion, ruta_json):
         for cca3_frontera in borders:
             insertar_frontera(conexion, id_pais, cca3_frontera)
 
-# FUNCIÓN DE PRUEBA (mínima)
+
 def prueba():
     print("=== PRUEBA MÓDULO BD ===")
     conexion = conectar_bd()
     
     # Insertar desde JSON (países y fronteras)
-    print("1. Insertando desde PaisesEuropa.json...")
-    insertar_desde_json(conexion, "PaisesEuropa.json")
+    print("1 INERTAR PAISES")
+    insertar_desde_json(conexion, "PaisesEjemplo.json")
     
     # Recuperar datos
-    print("\n2. Todos los países:")
+    print("\n 2 MOSTRAR INSERCIONES:")
     paises = obtener_todos_paises(conexion)
     print(f"Total: {len(paises)} países")
     
-    print("\n3. Temperaturas:")
+    print("\n3 ") # falta implementar api
     temps = obtener_temperaturas(conexion)
     print(f"Total: {len(temps)} registros")
     
     print("\n4. Fronteras:")
     frs = obtener_fronteras(conexion)
     print(f"Total: {len(frs)} fronteras")
+    # Mostrar una frontera:
+    for fr in frs:
+        if fr['pais_nombre'] == 'Estonia':
+            print(fr)
+            break
     
     print("\n5. Temps. España y fronteras:")
     res = obtener_temperaturas_fronteras(conexion, "Spain")
     print(res)
-    
+
+    print("--------------.")
     conexion.close()
-    print("Prueba completada.")
+    
+
+def limpiar_bd():
+    """
+    Limpia las tablas de la base de datos.
+    """
+    conexion = conectar_bd()
+    cursor = conexion.cursor()
+    cursor.execute("DELETE FROM temperaturas")
+    cursor.execute("DELETE FROM fronteras")
+    cursor.execute("DELETE FROM paises")
+    conexion.commit()
+    cursor.close()
+    conexion.close()
 
 if __name__ == "__main__":
     prueba()
+    # limpiar_bd()

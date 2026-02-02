@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+
+    <!-- 1. Al patron 'buenos dias' 3 aleatorias.-->
+    <category>
+        <pattern>BUENOS DIAS</pattern>
+        <template>
+            <random>
+                <li> Buenos días, ¿cuál es su nombre?</li>
+                <li> ¡Bienvenido! ¿cuál es su nombre?</li>
+                <li> ¡Hola! ¿cuál es su nombre?</li>
+            </random>
+        </template>
+    </category>
+
+    <!-- 2. Almacenar el nombre y responder -->
+    <category>
+        <pattern>Me llamo *</pattern>
+        <template> Encantado de conocerle <set name="nombrepersona"><star /></set>.
+            Si desea conocer el precio de un producto, realice la siguiente pregunta: “cuál es el precio de nombreproducto”.
+        </template>
+    </category>
+
+    <!-- 3. Responder con precios de los productos.-->
+    <category>
+        <pattern>Cual es el precio de *</pattern>
+        <template>
+            <set name="nombreproducto"><star /></set>
+            <condition name="nombreproducto">
+                <li value="ordenador">: El precio son 600€</li>
+                <li value="raton"> El precio del raton son 20€</li>
+                <li value="disco duro"> El precio del disco duro son 50€</li>
+                <li value="alfombrilla"> El precio de la alfombrilla son 8€</li>
+                <li value="USB"> El precio del USB son 10€</li>
+            </condition>
+        </template>
+    </category>
+</aiml>
