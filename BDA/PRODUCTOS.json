@@ -1,0 +1,212 @@
+[
+	{
+		"nombre": "iPad 16GB Wifi",
+		"fabricante": "Apple",
+		"categoria": "Tablets",
+		"ventas_anuales" : [
+			{
+				"anio":"2005",
+				"media":654
+			},
+			{
+				"anio":"2006",
+				"media":523
+			},
+			{
+				"anio":"2007",
+				"media":665
+			}
+	
+		],
+		"precio": 499.00
+	},
+	{
+		"nombre": "iPad 32GB Wifi",
+		"categoria": "Tablets",
+		"fabricante": "Apple",
+		"ventas_anuales" : [
+			{
+				"anio":"2007",
+				"media":245
+			},
+			{
+				"anio":"2008",
+				"media":333
+			},
+			{
+				"anio":"2009",
+				"media":456
+			}
+	
+		],
+		"precio": 599.00
+	},
+	{
+		"nombre": "iPad 64GB Wifi",
+		"categoria": "Tablets",
+		"fabricante": "Apple",
+		"ventas_anuales" : [
+			{
+				"anio":"2005",
+				"media":123
+			},
+			{
+				"anio":"2006",
+				"media":345
+			},
+			{
+				"anio":"2007",
+				"media":432
+			}
+	
+		],
+		"precio": 699.00
+	},
+	{
+		"nombre": "Galaxy S3",
+		"categoria": "Smartphones",
+		"fabricante": "Samsung",
+		"ventas_anuales" : [
+			{
+				"anio":"2010",
+				"media":654
+			},
+			{
+				"anio":"2011",
+				"media":523
+			},
+			{
+				"anio":"2012",
+				"media":665
+			}
+	
+		],
+		"precio": 563.99
+	},
+	{
+		"nombre": "Galaxy Tab 10",
+		"categoria": "Tablets",
+		"fabricante": "Samsung",
+		"ventas_anuales" : [
+			{
+				"anio":"2005",
+				"media":554
+			},
+			{
+				"anio":"2006",
+				"media":423
+			},
+			{
+				"anio":"2007",
+				"media":265
+			}
+	
+		],
+		"precio": 450.99
+	},
+	{
+		"nombre": "Vaio",
+		"categoria": "Portátiles",
+		"fabricante": "Sony",
+		"ventas_anuales" : [
+			{
+				"anio":"2005",
+				"media":684
+			},
+			{
+				"anio":"2006",
+				"media":233
+			},
+			{
+				"anio":"2007",
+				"media":645
+			}
+	
+		],
+		"precio": 499.00
+	},
+	{
+		"nombre": "Macbook Air 13inch",
+		"categoria": "Portátiles",
+		"fabricante": "Apple",
+		"ventas_anuales" : [
+			{
+				"anio":"2005",
+				"media":454
+			},
+			{
+				"anio":"2006",
+				"media":912
+			},
+			{
+				"anio":"2007",
+				"media":125
+			}
+	
+		],
+		"precio": 499.00
+	},
+	{
+		"nombre": "Nexus 7",
+		"categoria": "Tablets",
+		"fabricante": "Google",
+		"ventas_anuales" : [
+			{
+				"anio":"2005",
+				"media":234
+			},
+			{
+				"anio":"2006",
+				"media":345
+			},
+			{
+				"anio":"2007",
+				"media":789
+			}
+	
+		],
+		"precio": 199.00
+	},
+	{
+		"nombre": "Kindle Paper White",
+		"categoria": "Tablets",
+		"fabricante": "Amazon",
+		"ventas_anuales" : [
+			{
+				"anio":"2005",
+				"media":654
+			},
+			{
+				"anio":"2006",
+				"media":523
+			},
+			{
+				"anio":"2007",
+				"media":123
+			}
+	
+		],
+		"precio": 129.00
+	},
+	{
+		"nombre": "Kindle Fire",
+		"categoria": "Tablets",
+		"fabricante": "Amazon",
+		"ventas_anuales" : [
+			{
+				"anio":"2005",
+				"media":234
+			},
+			{
+				"anio":"2006",
+				"media":789
+			},
+			{
+				"anio":"2007",
+				"media":764
+			}
+	
+		],
+		"precio": 199.00
+	}
+]
