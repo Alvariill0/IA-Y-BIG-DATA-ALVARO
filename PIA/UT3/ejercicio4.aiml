@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+
+    <!-- EJERCICIO 4 AIML - ÁLVARO FERNÁNDEZ BECERRA-->
+
+    <!-- 1 y 5. Saludos y redirecciones a Buenos dias -->
+
+    <!-- 1- Al patron buenos dias 3 respuestas aleatorias -->
+    <category>
+        <pattern>BUENOS DIAS</pattern>
+        <template>
+            <random>
+                <li>Buenos días, ¿cuál es su nombre?</li>
+                <li>¡Bienvenido! ¿cuál es su nombre?</li>
+                <li>¡Hola! ¿cuál es su nombre?</li>
+            </random>
+        </template>
+    </category>
+
+    <!-- 5 Redirecciones al saludo principal -->
+    <category>
+        <pattern>HOLA</pattern>
+        <template>
+            <srai>BUENOS DIAS</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>HOLA BUENOS DIAS</pattern>
+        <template>
+            <srai>BUENOS DIAS</srai>
+        </template>
+    </category>
+
+    <category>
+        <pattern>QUE TAL ESTAS</pattern>
+        <template>
+            <srai>BUENOS DIAS</srai>
+        </template>
+    </category>
+
+    <!-- 2. Almacenar nombre y responder -->
+
+    <category>
+        <pattern>ME LLAMO *</pattern>
+        <template>
+            Encantado de conocerle
+            <think><set name="nombrepersona"><star/></set></think>.
+            Si desea conocer el precio de un producto realice la siguiente pregunta:
+            "Cual es el precio de 'nombreproducto'".
+        </template>
+    </category>
+
+    <!-- 3, 4. Precio de productos usando un map y respuesta si no existe -->
+
+    <category>
+        <pattern>CUAL ES EL PRECIO DE *</pattern>
+        <template>
+            <think><set name="nombreproducto"><star/></set></think>
+            <think>
+                <set name="precio">
+                    <map name="precios"><get name="nombreproducto"/></map>
+                </set>
+            </think>
+            <condition name="precio">
+                <li value="">No tengo información sobre ese producto.</li>
+                <li>El precio de <get name="nombreproducto"/> es <get name="precio"/>€.</li>
+            </condition>
+        </template>
+    </category>
+
+    <!-- 6. Preguntar temas cuando usuario dice 'me aburro' -->
+
+    <category>
+        <pattern>ME ABURRO</pattern>
+        <template>
+            ¿De qué quiere hablar?
+            Puedo hablar de música, del tiempo o de viajes.
+        </template>
+    </category>
+
+    <!-- Selección de tema: música -->
+
+    <category>
+        <pattern>DE MUSICA</pattern>
+        <template>
+            Vale hablamos de musica.
+            <think><set name="topic">musica</set></think>
+            ¿Qué tipo de música te gusta?
+        </template>
+    </category>
+
+    <!-- Selección de tema: tiempo -->
+
+    <category>
+        <pattern>DEL TIEMPO</pattern>
+        <template>
+            De acuerdo hablemos del tiempo.
+            <think><set name="topic">tiempo</set></think>
+            ¿Hace buen tiempo donde vive?
+        </template>
+    </category>
+
+    <!-- Selección de tema: viajes -->
+
+    <category>
+        <pattern>DE VIAJES</pattern>
+        <template>
+            Vale, hablemos de viajes.
+            <think><set name="topic">viajes</set></think>
+            ¿A qué continente viajaste por ultima vez?
+        </template>
+    </category>
+
+    <!-- Topic: MUSICA -->
+
+    <topic name="musica">
+
+        <category>
+            <pattern>*</pattern>
+            <template>
+                <think><set name="gusto_musical"><star/></set></think>
+                Interesante, a mi también me gusta <get name="gusto_musical"/>.
+            </template>
+        </category>
+
+    </topic>
+
+    <!-- Respuesta global: ¿Sabes algo de mí? -->
+
+    <category>
+        <pattern>SABES ALGO DE MI</pattern>
+        <template>
+            Sé que le gusta <get name="gusto_musical"/> y que se llama <get name="nombrepersona"/>.
+        </template>
+    </category>
+
+    <!-- Topic: TIEMPO -->
+
+    <topic name="tiempo">
+
+        <category>
+            <pattern>SI</pattern>
+            <template>
+                Me alegro de que haga buen tiempo.
+            </template>
+        </category>
+
+        <category>
+            <pattern>NO</pattern>
+            <template>
+                Esperemos que mejore pronto.
+            </template>
+        </category>
+
+    </topic>
+
+    <!-- Topic: VIAJES -->
+
+    <topic name="viajes">
+
+        <category>
+            <pattern>EUROPA</pattern>
+            <template>
+                Europa es un continente con muchos países interesantes. ¿Qué ciudad le gustó más?
+            </template>
+        </category>
+
+        <category>
+            <pattern>AMERICA</pattern>
+            <template>
+                América es muy diversa. ¿En qué país estuvo?
+            </template>
+        </category>
+
+        <category>
+            <pattern>ASIA</pattern>
+            <template>
+                Asia tiene culturas muy distintas. ¿Qué es lo que más le sorprendió?
+            </template>
+        </category>
+
+        <category>
+            <pattern>AFRICA</pattern>
+            <template>
+                África tiene paisajes increíbles. ¿Fue un viaje de vacaciones o de trabajo?
+            </template>
+        </category>
+
+        <category>
+            <pattern>OCEANIA</pattern>
+            <template>
+                Oceanía está muy lejos. ¿Cuánto duro tu viaje?
+            </template>
+        </category>
+
+        <!-- Respuesta por defecto dentro de viajes -->
+        <category>
+            <pattern>*</pattern>
+            <template>
+                Suena a un lugar interesante para visitar.
+            </template>
+        </category>
+
+    </topic>
+
+</aiml>
