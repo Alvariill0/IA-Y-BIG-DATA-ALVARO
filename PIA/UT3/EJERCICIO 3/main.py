@@ -84,6 +84,7 @@ while True:
             conn.close()
     
     elif opcion == "0":
+        print("Chao pescao")
         break
     
     # # limpiar la base de datos test
