@@ -32,11 +32,21 @@ while True:
             print(" Error / API_KEY vacía en api_modulo.py")
     
     elif opcion == "3":
-        pais = input("Nombre país: ").title()
         conn = bd_modulo.conectar_bd()
         if not conn:
             print("Error: no se pudo conectar a la base de datos")
         else:
+            # Mostrar listado de países disponibles con sus códigos
+            print("\n=== PAÍSES DISPONIBLES ===")
+            paises_disp = bd_modulo.obtener_todos_paises(conn)
+            if paises_disp:
+                for p in paises_disp:
+                    print(f"  {p['nombre']:<30} (CCA2: {p['cca2']}, CCA3: {p['cca3']})")
+            else:
+                print("No hay países en la base de datos. Primero debes insertar datos (opción 1)")
+                conn.close()
+            
+            pais = input("\nNombre país: ").title()
             res = bd_modulo.obtener_temperaturas_fronteras(conn, pais)
             if not res:
                 print("País no encontrado en la base de datos")
@@ -76,15 +86,15 @@ while True:
     elif opcion == "0":
         break
     
-    # limpiar la base de datos test
-    elif opcion == "33":
+    # # limpiar la base de datos test
+    # elif opcion == "33":
+    #     conn = bd_modulo.conectar_bd()
+    #     if not conn:
+    #         print("Error: no se pudo conectar a la base de datos")
+    #     else:
+    #         bd_modulo.limpiar_bd()
+    #         conn.close()
     
-        conn = bd_modulo.conectar_bd()
-        if not conn:
-            print("Error: no se pudo conectar a la base de datos")
-        else:
-            bd_modulo.limpiar_bd()
-            conn.close()
     # Opción no válida
     else:
         print("-- Opción no válida --")

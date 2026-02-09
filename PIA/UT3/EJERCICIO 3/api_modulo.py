@@ -4,9 +4,15 @@ import json
 import xml.etree.ElementTree as ET
 import bd_modulo
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 
-API_KEY = "fa905b4ca52cfdbb2ed4d595dd07d816"
-URL_BASE = "https://api.openweathermap.org/data/2.5/weather"
+# Cargar variables de entorno desde .env
+load_dotenv()
+
+# Configuración API
+API_KEY = os.getenv('API_KEY', '')
+URL_BASE = os.getenv('API_URL', 'https://api.openweathermap.org/data/2.5/weather')
 
 def obtener_temperaturas_todos_paises():
     """Obtiene las temperaturas de todas las capitales guardadas en la BD.
@@ -24,13 +30,14 @@ def obtener_temperaturas_todos_paises():
         conexion.close()
         return
 
-    print(f"TOTAL: {len(paises)} países")
+    print(f"\nObteniendo temperaturas para {len(paises)} países...")
     
     mitad = len(paises) // 2  
+    insertadas = 0
+    errores = 0
     
     for i in range(len(paises)):
         pais = paises[i]
-        print(f"\n{i+1}. {pais['nombre']}")
         
         try:
             capital = pais['capital']
@@ -42,7 +49,6 @@ def obtener_temperaturas_todos_paises():
             
             if i < mitad:
                 # Primera mitad de paises en JSON
-                print(" MitadJSON")
                 url = f"{URL_BASE}?q={capital},{cca2}&appid={API_KEY}&units=metric"
                 r = requests.get(url)
                 datos = r.json()
@@ -59,7 +65,6 @@ def obtener_temperaturas_todos_paises():
                 
             else:
                 # Segunda mitad de paises en XML
-                print(" Mitad XML")
                 url = f"{URL_BASE}?q={capital},{cca2}&appid={API_KEY}&units=metric&mode=xml"
                 r = requests.get(url)
                 raiz = ET.fromstring(r.text)
@@ -70,20 +75,21 @@ def obtener_temperaturas_todos_paises():
                 maxima = float(raiz.find('.//temperature').get('max'))
                 humedad = float(raiz.find('.//humidity').get('value'))
                 sun = raiz.find('.//city/sun') or raiz.find('.//sun')
-                # Si no transformaramos se imprimiria:
-                amanecer_no = sun.get('rise')
-                atardecer_no = sun.get('set')
-                print(f"  Amanecer (raw): {amanecer_no}, Atardecer (raw): {atardecer_no}")
-
                 amanecer = sun.get('rise').split('T')[1][:8]
                 atardecer = sun.get('set').split('T')[1][:8]
             
             # GUARDAR BD
             ahora = datetime.now()
             bd_modulo.insertar_temperatura(conexion, pais['idpais'], ahora, temperatura, sensacion, minima, maxima, humedad, amanecer, atardecer)
-            print(f"{temperatura}°C")
+            insertadas += 1
             
         except Exception as e:
-            print(e)
+            errores += 1
+            print(f"  Error en {pais['nombre']}: {str(e)}")
     
     conexion.close()
+    
+    print(f"\n✓ Inserción completada: {insertadas} temperaturas guardadas.")
+    if errores > 0:
+        print(f"  ({errores} errores durante la inserción)")
+
