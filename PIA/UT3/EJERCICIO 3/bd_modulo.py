@@ -3,13 +3,17 @@ import mysql.connector
 import json
 from datetime import datetime
 import os
+from dotenv import load_dotenv
 
-# CONFIG BD 
+# Cargar variables de entorno desde .env
+load_dotenv()
+
+# CONFIG BD
 CONFIG_DB = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'alvaro',
-    'database': 'temperaturas'
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'user': os.getenv('DB_USER', 'root'),
+    'password': os.getenv('DB_PASSWORD', ''),
+    'database': os.getenv('DB_NAME', 'temperaturas')
 }
 
 # Códigos CCA3 paises de la Union europea
@@ -216,58 +220,57 @@ def obtener_temperaturas_fronteras(conexion, nombre_pais):
     return {'pais': nombre_p, 'temp_pais': temp_pais, 'fronteras': temps_fronteras}
 
 
-# Funciones test
+# # Funciones test
+#
+# def prueba():
+#     print("=== PRUEBA MÓDULO BD ===")
+#     conexion = conectar_bd()
+#     
+#     # Insertar desde JSON (países y fronteras)
+#     print("1 INERTAR PAISES (Ejemplo)")
+#     insertar_desde_json(conexion, "PaisesEjemplo.json")
+#     cursor_test = conexion.cursor()
+#     cursor_test.execute("SELECT nombre, cca3, miembroUE FROM paises WHERE cca3='ITA'")
+#     ita = cursor_test.fetchone()
+#     print("Comprobación Italia:", ita)
+#     cursor_test.close()
+#     
+#     # Recuperar datos
+#     print("\n 2 MOSTRAR INSERCIONES:")
+#     paises = obtener_todos_paises(conexion)
+#     print(f"Total: {len(paises)} países")
+#     
+#     print("\n3 ") 
+#     temps = obtener_temperaturas(conexion)
+#     print(f"Total: {len(temps)} registros")
+#     
+#     print("\n4. Fronteras:")
+#     frs = obtener_fronteras(conexion)
+#     print(f"Total: {len(frs)} fronteras")
+#     # Mostrar una frontera:
+#     for fr in frs:
+#         # 'obtener_fronteras' devuelve columnas 'pais' y 'frontera'
+#         if fr['pais'] == 'Estonia':
+#             print(fr)
+#     
+#     print("\n5. Temps. España y fronteras:")
+#     res = obtener_temperaturas_fronteras(conexion, "Spain")
+#     print(res)
+#
+#     print("--------------.")
+#     conexion.close()
+    
 
-def prueba():
-    print("=== PRUEBA MÓDULO BD ===")
-    conexion = conectar_bd()
-    
-    # Insertar desde JSON (países y fronteras)
-    print("1 INERTAR PAISES (Ejemplo)")
-    insertar_desde_json(conexion, "PaisesEjemplo.json")
-    cursor_test = conexion.cursor()
-    cursor_test.execute("SELECT nombre, cca3, miembroUE FROM paises WHERE cca3='ITA'")
-    ita = cursor_test.fetchone()
-    print("Comprobación Italia:", ita)
-    cursor_test.close()
-    
-    # Recuperar datos
-    print("\n 2 MOSTRAR INSERCIONES:")
-    paises = obtener_todos_paises(conexion)
-    print(f"Total: {len(paises)} países")
-    
-    print("\n3 ") 
-    temps = obtener_temperaturas(conexion)
-    print(f"Total: {len(temps)} registros")
-    
-    print("\n4. Fronteras:")
-    frs = obtener_fronteras(conexion)
-    print(f"Total: {len(frs)} fronteras")
-    # Mostrar una frontera:
-    for fr in frs:
-        # 'obtener_fronteras' devuelve columnas 'pais' y 'frontera'
-        if fr['pais'] == 'Estonia':
-            print(fr)
-            break
-    
-    print("\n5. Temps. España y fronteras:")
-    res = obtener_temperaturas_fronteras(conexion, "Spain")
-    print(res)
-
-    print("--------------.")
-    conexion.close()
-    
-
-def limpiar_bd():
-    """
-    Limpia las tablas de la base de datos.
-    """
-    conexion = conectar_bd()
-    cursor = conexion.cursor()
-    cursor.execute("DELETE FROM temperaturas")
-    cursor.execute("DELETE FROM fronteras")
-    cursor.execute("DELETE FROM paises")
-    conexion.commit()
-    cursor.close()
-    conexion.close()
-    print("BD limpiada.")
+# def limpiar_bd():
+#     """
+#     Limpia las tablas de la base de datos.
+#     """
+#     conexion = conectar_bd()
+#     cursor = conexion.cursor()
+#     cursor.execute("DELETE FROM temperaturas")
+#     cursor.execute("DELETE FROM fronteras")
+#     cursor.execute("DELETE FROM paises")
+#     conexion.commit()
+#     cursor.close()
+#     conexion.close()
+#     print("BD limpiada.")
