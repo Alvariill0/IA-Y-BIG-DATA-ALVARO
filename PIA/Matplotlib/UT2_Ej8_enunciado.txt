@@ -1,0 +1,20 @@
+Ejercicios 8 – Gráficos:
+
+1.	Genera un gráfico de líneas que muestre la evolución de las temperaturas diarias de una semana en grados Celsius. Asegúrate de etiquetar los ejes y de incluir una leyenda
+2.	Crea un gráfico de dispersión que represente la relación entre la cantidad de horas de estudio y las calificaciones obtenidas por un grupo de estudiantes. 
+3.	Elabora un gráfico de barras que compare las ventas de cuatro tipos de frutas en una tienda durante una semana. Usa nombres de frutas y valores generados por tí en dos listas que te sirvan de ejemplo.
+Explora las opciones de formato que se pueden aplicar a los gráficos. Es el tercer argumento de la función plot
+		fmt = '[marker][line][color]'
+
+https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot
+4.	Diseña un gráfico de tarta que represente la distribución de los hobbies preferidos de un grupo de amigos. Asigna un porcentaje a cada hobbie y asegúrate de etiquetar cada segmento.
+5.	Crea un histograma que muestre la distribución de las edades de un grupo de personas en una fiesta. Genera datos aleatorios que representen estas edades.
+6.	(ENTREGA) Dibuja un gráfico para mostrar las temperaturas de todos los días del año agrupadas por meses. Para ello:
+a.	Generar un fichero temperaturas txt en el que generes temperaturas de manera aleatoria para los días de todos los meses del año, con variabilidad según las estaciones:
+i.	Invierno de 0 a 18 ºC
+ii.	Primavera de 10 a 25 ºC
+iii.	Verano de 22 a 40 ºC
+iv.	Otoño de 15 a 28 ºC
+b.	Lee los datos del fichero que acabas de generar y dibuja un gráfico con una línea para cada uno de los meses y sus temperaturas
+
+
