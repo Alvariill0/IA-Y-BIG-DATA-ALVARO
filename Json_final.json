@@ -1,0 +1,151 @@
+{
+    "base": "USD",
+    "date": "2026-02-11",
+    "currencies": [
+        {
+            "code": "AUD",
+            "name": "Australian Dollar",
+            "rate": 1.4065
+        },
+        {
+            "code": "BRL",
+            "name": "Brazilian Real",
+            "rate": 5.1893
+        },
+        {
+            "code": "CAD",
+            "name": "Canadian Dollar",
+            "rate": 1.3561
+        },
+        {
+            "code": "CHF",
+            "name": "Swiss Franc",
+            "rate": 0.76773
+        },
+        {
+            "code": "CNY",
+            "name": "Chinese Renminbi Yuan",
+            "rate": 6.9113
+        },
+        {
+            "code": "CZK",
+            "name": "Czech Koruna",
+            "rate": 20.374
+        },
+        {
+            "code": "DKK",
+            "name": "Danish Krone",
+            "rate": 6.2771
+        },
+        {
+            "code": "EUR",
+            "name": "Euro",
+            "rate": 0.84034
+        },
+        {
+            "code": "GBP",
+            "name": "British Pound",
+            "rate": 0.73101
+        },
+        {
+            "code": "HKD",
+            "name": "Hong Kong Dollar",
+            "rate": 7.8162
+        },
+        {
+            "code": "HUF",
+            "name": "Hungarian Forint",
+            "rate": 318.51
+        },
+        {
+            "code": "IDR",
+            "name": "Indonesian Rupiah",
+            "rate": 16800
+        },
+        {
+            "code": "ILS",
+            "name": "Israeli New Sheqel",
+            "rate": 3.076
+        },
+        {
+            "code": "INR",
+            "name": "Indian Rupee",
+            "rate": 90.71
+        },
+        {
+            "code": "ISK",
+            "name": "Icelandic Kr\u00f3na",
+            "rate": 122.02
+        },
+        {
+            "code": "JPY",
+            "name": "Japanese Yen",
+            "rate": 153.61
+        },
+        {
+            "code": "KRW",
+            "name": "South Korean Won",
+            "rate": 1451.97
+        },
+        {
+            "code": "MXN",
+            "name": "Mexican Peso",
+            "rate": 17.2034
+        },
+        {
+            "code": "MYR",
+            "name": "Malaysian Ringgit",
+            "rate": 3.915
+        },
+        {
+            "code": "NOK",
+            "name": "Norwegian Krone",
+            "rate": 9.4664
+        },
+        {
+            "code": "NZD",
+            "name": "New Zealand Dollar",
+            "rate": 1.6502
+        },
+        {
+            "code": "PHP",
+            "name": "Philippine Peso",
+            "rate": 58.275
+        },
+        {
+            "code": "PLN",
+            "name": "Polish Z\u0142oty",
+            "rate": 3.5408
+        },
+        {
+            "code": "RON",
+            "name": "Romanian Leu",
+            "rate": 4.2783
+        },
+        {
+            "code": "SEK",
+            "name": "Swedish Krona",
+            "rate": 8.8773
+        },
+        {
+            "code": "SGD",
+            "name": "Singapore Dollar",
+            "rate": 1.2628
+        },
+        {
+            "code": "THB",
+            "name": "Thai Baht",
+            "rate": 31.085
+        },
+        {
+            "code": "TRY",
+            "name": "Turkish Lira",
+            "rate": 43.643
+        },
+        {
+            "code": "ZAR",
+            "name": "South African Rand",
+            "rate": 15.8814
+        }
+    ]
+}

@@ -5,10 +5,10 @@ import xml.etree.ElementTree as ET
 import bd_modulo
 from datetime import datetime
 import os
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 
 # Cargar variables de entorno desde .env
-load_dotenv()
+#load_dotenv()
 
 # Configuración API
 API_KEY = os.getenv('API_KEY', '')
