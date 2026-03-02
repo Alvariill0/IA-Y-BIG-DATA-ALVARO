@@ -1,0 +1,33 @@
+{
+    "species": [
+        {
+            "name": "Wookiee",
+            "classification": "mammal",
+            "average_lifespan": "400",
+            "appearances": [
+                {
+                    "title": "A New Hope",
+                    "episode_id": 4,
+                    "release_date": "1977-05-25"
+                },
+                {
+                    "title": "The Empire Strikes Back",
+                    "episode_id": 5,
+                    "release_date": "1980-05-17"
+                }
+            ]
+        },
+        {
+            "name": "Ewok",
+            "classification": "mammal",
+            "average_lifespan": "unknown",
+            "appearances": [
+                {
+                    "title": "Return of the Jedi",
+                    "episode_id": 6,
+                    "release_date": "1983-05-25"
+                }
+            ]
+        }
+    ]
+}
