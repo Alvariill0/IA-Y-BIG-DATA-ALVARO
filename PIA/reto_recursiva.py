@@ -10,8 +10,3 @@ if isinstance(diccionario3) == dict:
 elif isinstance(diccionario3) == list:
     for indice in len(diccionario3):
         print("Elemento ", indice, ": ",diccionario3[indice])
-'''
-A tuple, as in isinstance(x, (A, B, ...)), may be given as the target to
-check against. This is equivalent to isinstance(x, A) or isinstance(x, B) or ... etc.
-'''
-#Codigo recursivo para recorrer diccionarios y su contenido (sea diccionario o lista)

@@ -1,0 +1,15 @@
+manzana
+banana
+naranja
+pera
+uva
+sandía
+melón
+kiwi
+fresa
+piña
+limón
+cereza
+mango
+papaya
+ciruela

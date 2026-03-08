@@ -1,0 +1,54 @@
+idpais,cca2,cca3,nombre,capital,region,subregion,miembroONU,capitalLatitud,capitalLongitud
+1909,MC,MCO,Monaco,Monaco,Europe,"Western Europe",1,43.73,7.42
+1910,CY,CYP,Cyprus,Nicosia,Europe,"Southern Europe",1,35.17,33.37
+1911,IE,IRL,Ireland,Dublin,Europe,"Northern Europe",1,53.32,-6.23
+1912,BG,BGR,Bulgaria,Sofia,Europe,"Southeast Europe",1,42.68,23.32
+1913,UA,UKR,Ukraine,Kyiv,Europe,"Eastern Europe",1,50.43,30.52
+1914,FI,FIN,Finland,Helsinki,Europe,"Northern Europe",1,60.17,24.93
+1915,IM,IMN,"Isle of Man",Douglas,Europe,"Northern Europe",0,54.15,-4.48
+1916,PL,POL,Poland,Warsaw,Europe,"Central Europe",1,52.25,21
+1917,SK,SVK,Slovakia,Bratislava,Europe,"Central Europe",1,48.15,17.12
+1918,MK,MKD,"North Macedonia",Skopje,Europe,"Southeast Europe",1,42,21.43
+1919,DE,DEU,Germany,Berlin,Europe,"Western Europe",1,52.52,13.4
+1920,HU,HUN,Hungary,Budapest,Europe,"Central Europe",1,47.5,19.08
+1921,SI,SVN,Slovenia,Ljubljana,Europe,"Central Europe",1,46.05,14.52
+1922,BA,BIH,"Bosnia and Herzegovina",Sarajevo,Europe,"Southeast Europe",1,43.87,18.42
+1923,LU,LUX,Luxembourg,Luxembourg,Europe,"Western Europe",1,49.6,6.12
+1924,MD,MDA,Moldova,Chișinău,Europe,"Eastern Europe",1,47.01,28.9
+1925,LV,LVA,Latvia,Riga,Europe,"Northern Europe",1,56.95,24.1
+1926,JE,JEY,Jersey,"Saint Helier",Europe,"Northern Europe",0,49.18,-2.1
+1927,ES,ESP,Spain,Madrid,Europe,"Southern Europe",1,40.4,-3.68
+1928,CH,CHE,Switzerland,Bern,Europe,"Western Europe",1,46.92,7.47
+1929,NL,NLD,Netherlands,Amsterdam,Europe,"Western Europe",1,52.35,4.92
+1930,GI,GIB,Gibraltar,Gibraltar,Europe,"Southern Europe",0,36.13,-5.35
+1931,PT,PRT,Portugal,Lisbon,Europe,"Southern Europe",1,38.72,-9.13
+1932,AD,AND,Andorra,"Andorra la Vella",Europe,"Southern Europe",1,42.5,1.52
+1933,SM,SMR,"San Marino","City of San Marino",Europe,"Southern Europe",1,43.94,12.45
+1934,RS,SRB,Serbia,Belgrade,Europe,"Southeast Europe",1,44.83,20.5
+1935,CZ,CZE,Czechia,Prague,Europe,"Central Europe",1,50.08,14.47
+1936,ME,MNE,Montenegro,Podgorica,Europe,"Southeast Europe",1,42.43,19.27
+1937,SE,SWE,Sweden,Stockholm,Europe,"Northern Europe",1,59.33,18.05
+1938,RU,RUS,Russia,Moscow,Europe,"Eastern Europe",1,55.75,37.6
+1939,GG,GGY,Guernsey,"St. Peter Port",Europe,"Northern Europe",0,49.45,-2.54
+1940,BE,BEL,Belgium,Brussels,Europe,"Western Europe",1,50.83,4.33
+1941,IS,ISL,Iceland,Reykjavik,Europe,"Northern Europe",1,64.15,-21.95
+1942,AX,ALA,"Åland Islands",Mariehamn,Europe,"Northern Europe",0,60.12,19.9
+1943,MT,MLT,Malta,Valletta,Europe,"Southern Europe",1,35.88,14.5
+1944,FR,FRA,France,Paris,Europe,"Western Europe",1,48.87,2.33
+1945,EE,EST,Estonia,Tallinn,Europe,"Northern Europe",1,59.43,24.72
+1946,XK,UNK,Kosovo,Pristina,Europe,"Southeast Europe",0,42.67,21.17
+1947,VA,VAT,"Vatican City","Vatican City",Europe,"Southern Europe",1,41.9,12.45
+1948,AL,ALB,Albania,Tirana,Europe,"Southeast Europe",1,41.32,19.82
+1949,HR,HRV,Croatia,Zagreb,Europe,"Southeast Europe",1,45.8,16
+1950,LI,LIE,Liechtenstein,Vaduz,Europe,"Western Europe",1,47.13,9.52
+1951,RO,ROU,Romania,Bucharest,Europe,"Southeast Europe",1,44.43,26.1
+1952,AT,AUT,Austria,Vienna,Europe,"Central Europe",1,48.2,16.37
+1953,LT,LTU,Lithuania,Vilnius,Europe,"Northern Europe",1,54.68,25.32
+1954,NO,NOR,Norway,Oslo,Europe,"Northern Europe",1,59.92,10.75
+1955,GR,GRC,Greece,Athens,Europe,"Southern Europe",1,37.98,23.73
+1956,FO,FRO,"Faroe Islands",Tórshavn,Europe,"Northern Europe",0,62.01,-6.77
+1957,BY,BLR,Belarus,Minsk,Europe,"Eastern Europe",1,53.9,27.57
+1958,DK,DNK,Denmark,Copenhagen,Europe,"Northern Europe",1,55.67,12.58
+1959,IT,ITA,Italy,Rome,Europe,"Southern Europe",1,41.9,12.48
+1960,SJ,SJM,"Svalbard and Jan Mayen",Longyearbyen,Europe,"Northern Europe",0,78.22,15.63
+1961,GB,GBR,"United Kingdom",London,Europe,"Northern Europe",1,51.5,-0.08
