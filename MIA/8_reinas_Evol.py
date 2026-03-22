@@ -68,7 +68,7 @@ def algoritmo_evolutivo():
             mostrar_tablero(mejor)
             return mejor
 
-        # Mutación adaptativa
+        # Mutacion adaptativa
         prob_mut = PROB_MUTACION_BASE + (generaciones_sin_mejora * 0.01)
 
         # Selección de élite
