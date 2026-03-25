@@ -1,0 +1,71 @@
+---
+title: "FernandezBecerra_Alvaro_UT5_Ej2_Funciones2"
+output: html_document
+---
+Ejercicio 2:
+
+· Implementa una función genera.columnas que reciba un dataframe numérico como argumento y un número natural k de columnas nuevas que se generarán.
+
+· Debe devolver otro dataframe que tendrá todas las columnas del original más las k columnas nuevas a la derecha, cuyos nombres sean “adic_1” hasta “adic_k”.
+
+o PISTA: Recuerda que se puede operar con columnas completas accediendo correctamente con los corchetes. No es necesario recorrer las dos dimensiones del data.frame.
+
+Los valores de las columnas nuevas se generarán sumando las dos columnas anteriores.
+
+Implementa una primera versión llamada genera.columnas utilizando un bucle for.
+Implementa una segunda versión genera.columnas.sinbucle que no utilice bucles
+o   PISTA: Algunos pasos que puedes seguir: crea una matriz con las nuevas columnas, asigna los valores a las mismas, une las columnas al data.frame original.
+
+## Versión 1: Utilizando bucle.
+```{r conBucle}
+genera_columnas <- function(dataframe,num_columnas){
+  
+  for (i in 1:num_columnas) {
+    # Obtener num de columnas del dataframe:
+    cols <- ncol(dataframe) +1
+    
+    # Ahora guardamos las posiciones de las 2 columnas anteriores para acceder luego a sus valores
+    antes_1 <- cols - 1
+    antes_2 <- cols - 2
+    
+    # Ahora se añade la columna con la suma de las 2 anteriores
+    dataframe[[cols]] <- dataframe[[antes_1]] + dataframe[[antes_2]]
+    
+    #Cambiar nombre
+    colnames(dataframe)[cols] <- paste("adic_",i, sep="")
+  }
+  return(dataframe)
+}
+
+
+dataframe <- data.frame(aa = c(20,21,22), bb = c(23,24,25))
+
+genera_columnas(dataframe,3)
+
+print(dataframe)
+
+
+```
+
+## Versión 2: Sin utilizar bucles.
+``` {r sinBucle}
+
+genera_columnas_sinbucle <- function(df, k) {
+  n_cols <- ncol(df)
+  
+  # matriz con las cols
+  nuevas_cols <- matrix(nrow = nrow(df), ncol = k)
+  colnames(nuevas_cols) <- paste("adic_", 1:k, sep="")
+  
+  # calcular y asignar valor como la suma de las 2 anteirores
+  nuevas_cols[, 1:k] <- df[, n_cols - 1] + df[, n_cols]
+  
+  # unir la matriz al dataframe
+  resultado <- cbind(df, nuevas_cols)
+  
+  return(resultado)
+}
+
+dataframe2 = data.frame(aa = c(20,21,22), bb = c(23,24,25))
+genera_columnas_sinbucle(dataframe2, 2)
+```

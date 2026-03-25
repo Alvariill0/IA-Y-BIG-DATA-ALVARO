@@ -1,0 +1,70 @@
+---
+title: "Cuaderno 3: Lectura, Escritura y Gestión de Paquetes"
+output: html_document
+---
+
+## 1. Escritura de Datos
+
+Podemos exportar dataframes a ficheros de texto utilizando la instrucción `write.table()`.
+
+```{r escritura-datos}
+# Generamos unos vectores numéricos y los almacenamos en un data frame
+x <- seq(-5, 5) 
+y <- x^3 
+df <- data.frame(x=x, y=y) #
+
+# Escribir un fichero con etiquetas para cada fila (comportamiento por defecto)
+write.table(df, file="ejemplo1.txt") #
+
+# Escribir un fichero sin etiquetas para cada fila
+write.table(df, file="ejemplo2.txt", row.names=FALSE) #
+```
+
+## 2. Lectura de Datos
+
+R permite importar datos de numerosas fuentes, como ficheros de texto, binarios, hojas de cálculo o bases de datos. Para leer ficheros en formato ASCII, utilizamos `read.table()`.
+
+```{r lectura-datos}
+# Lectura del fichero 1: R interpreta la primera fila como cabecera ya que tiene una columna menos (debido a los nombres de fila)
+dfinput1 <- read.table("ejemplo1.txt") #
+
+# Lectura del fichero 2: hay que indicar explícitamente que la primera línea contiene una cabecera con header=TRUE
+dfinput2 <- read.table("ejemplo2.txt", header=TRUE) #
+
+# Comprobamos la clase del objeto importado (se lee como data.frame)
+class(dfinput2) #
+print(head(dfinput2))
+```
+
+## 3. Gestión de Paquetes
+
+Todas las funciones de R se almacenan en paquetes. Aunque los paquetes se instalan una sola vez en el entorno de trabajo, debemos cargarlos en cada sesión mediante el comando `library()`.
+
+```{r gestion-paquetes, eval=FALSE}
+# Para ver qué paquetes están instalados en nuestro entorno:
+library() #
+
+# Para instalar un paquete nuevo (ej. "tidyverse"):
+install.packages("tidyverse") #
+
+# Para cargar un paquete e incorporarlo a la sesión actual (ej. paquete estadístico 'stats'):
+library(stats) #
+
+# Para solicitar información y ayuda sobre un paquete específico:
+library(help = stats) #
+```
+
+## 4. Conjuntos de Datos de Ejemplo
+
+R tiene muchos datos de ejemplo integrados que son muy útiles para practicar.
+
+```{r datasets}
+# El comando data() nos muestra qué listas de datos están disponibles
+# data() # (Descomentar para abrir la lista de datasets)
+
+# Podemos cargar un dataset incluido en el paquete 'datasets', como 'AirPassengers' (número mensual de pasajeros de aerolíneas 1949-1960)
+data("AirPassengers") #
+print(head(AirPassengers))
+```
+
+\`\`\`

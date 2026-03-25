@@ -1,0 +1,28 @@
+---
+title: "FernandezBecerra_Alvaro_UT5_Ej2_Funciones3"
+output: html_document
+---
+
+Ejercicio 3:
+
+· Crea una función quita.mayores que reciba como parámetros un dataframe y un número natural k, y devuelva un nuevo dataframe en el que se hayan eliminado las k columnas de mayor media.
+
+· PISTA: utiliza la función order y la función apply. 
+
+· No está permitido usar bucles. La función debe tener en cuenta que el dataframe recibido puede incluir valores NA que provocarían un error al calcular la media si no se indica expresamente la opción adecuada.
+
+· Asegúrate de que k sea menor que el número de columnas del dataframe, y devolver NULL en caso contrario
+
+```{r quitaMayores}
+quita_mayores <- function(dataframe, k){
+  #dataframe <- sapply
+  
+  
+}
+dataframe <- data.frame(aa = c(5,5,5), bb = c(10,10,10), cc = c(20,20,20))
+
+medias <- apply(dataframe, 2, mean, na.rm = TRUE)
+med_ord <- medias[order(medias, decreasing=TRUE)]
+med_ord
+
+```
