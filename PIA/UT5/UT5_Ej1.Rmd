@@ -1,0 +1,223 @@
+---
+title: "UT5_Ej1"
+output: html_document
+---
+
+## 1. Define una variable numerica llamada miNumero y asignale el valor 42
+```{r ej1}
+miNumero <- 42
+print(miNumero)
+```
+
+## 2. 2.	Define una variable de cadena llamada miCadena y asígnale el valor "Hola Mundo".
+```{r ej2}
+miCadena <- "Hola Mundo"
+print(miCadena)
+```
+
+## 3.	Define una variable lógica llamada miBooleano y asígnale el valor TRUE.
+```{r ej3}
+miBooleano <- TRUE
+print(miBooleano)
+```
+
+## 4.	Crea una variable numérica numeroACadena con el valor 100 y luego conviértela en una cadena usando as.character()
+```{r ej4}
+numeroACadena <- 100
+print(numeroACadena)
+print("Tipo antes de conversión:")
+typeof(numeroACadena)
+
+numeroACadena <- as.character(numeroACadena) #Conversión
+
+print("Tipo despues de conversión:")
+typeof(numeroACadena)
+
+```
+
+## 5.	Crea una variable de cadena cadenaANumero con el valor "123" y luego conviértela en un número usando as.numeric()
+```{r ej5}
+cadenaANumero <- '123'
+cadenaANumero
+
+print("Tipo antes de conversion:")
+typeof(cadenaANumero)
+
+cadenaANumero <- as.numeric(cadenaANumero)
+
+print("Tipo despues de conversión: ")
+typeof(cadenaANumero)
+print(cadenaANumero)
+```
+## 5.1 Otros as.
+```{r otros_as}
+cadena_prueba = '1234'
+
+cadena_prueba
+typeof(cadena_prueba)
+
+```
+
+##  6.	Calcula el módulo de dos números, 15 y 4. (%%)
+```{r ej6}
+mod15 <- 15%%4
+print(mod15)
+```
+
+## 7.	Calcula la parte entera de la división de 15 entre 4. (%/%)
+```{r ej7}
+div154 <- 15/4
+div154
+```
+
+## 8. Eleva 5 al cubo. (^)
+```{r ej8}
+print(5^2)
+```
+
+## 9.	Calcula la raíz cuadrada de 81. (sqtr())
+```{r ej9}
+print(sqrt(81))
+```
+
+## 10.	Calcula el logaritmo de 10. (log())
+```{r ej10}
+print(log(10))
+```
+
+## 11.	Vector Numérico con c(): Crea un vector llamado precios que represente los precios de tres productos diferentes: 10€, 20€ y 15€.
+```{r ej11}
+precios <- c(10, 20, 15)
+print(precios)
+
+```
+
+## 12.	Vector Numérico con seq(): Crea un vector llamado dias que represente una secuencia de días durante los cuales se vendieron los productos, del día 1 al día 3.
+```{r ej12}
+dias <- seq(from=1, to=3)
+dias
+```
+
+## 13.	Vector Numérico con rep(): Crea un vector llamado cantidades que represente la cantidad de cada producto vendido durante los tres días. Supongamos que se vendieron 5 unidades cada día.
+```{r ej13}
+cantidades <- rep(dias, times=5)
+cantidades
+```
+
+## 14.	Ingresos Totales por Producto: Multiplica los vectores precios y cantidades para obtener el ingreso total por producto, y luego suma los resultados para obtener el ingreso total.
+```{r ej14}
+ingresos <- precios * cantidades
+ingresos
+suma <- sum(ingresos)
+suma
+```
+
+## 15.	Multiplicar un Vector Numérico por un Escalar: Con el vector precios, calcula el precio + IVA que (21% de impuesto)
+```{r ej15}
+precios_iva <- precios + 1.21
+precios_iva
+```
+
+## 16.	Crea un vector lógico enStock para representar si tres productos diferentes están en stock (TRUE) o no (FALSE), con los valores fijos que tú quieras.
+```{r ej16}
+enStock <-c(TRUE, FALSE, TRUE)
+```
+
+## 17.	Dados dos vectores lógicos, enStock y esDemandado (que indica si los productos están en demanda), usa el operador AND (&) para determinar qué productos están en stock y son demandados.
+```{r ej10}
+#temperaturas <- c(24,22,21,20,35)
+#tmps <- ifelse(temperaturas > 23, "Alta", "Baja")
+#tmps
+esDemandado <- c(TRUE,TRUE,FALSE)
+stock_y_demanda <- enStock & esDemandado 
+stock_y_demanda
+```
+
+## 18.	Usa el operador OR (|) para determinar qué productos están en stock o son demandados.
+```{r ej10}
+stock_or_demanda <- enStock | esDemandado
+stock_or_demanda
+
+```
+
+## 19.	Aplica el operador NOT (!) al vector enStock para obtener los productos que no están en stock.
+```{r ej10}
+no_stock <- !enStock
+
+no_stock # segundo producto FALSE
+```
+
+## 20.	Combina los operadores AND y OR para encontrar productos que o bien están en stock o bien son demandados, pero no están en oferta (nuevo vector enOferta)
+```{r ej20}
+enOferta <- c(FALSE,TRUE,TRUE)
+condicion <- (enStock | esDemandado) & !enOferta
+
+condicion
+```
+
+## 21.	Crea un vector nombresEmpleados con los nombres de tres empleados: "Ana López", "Carlos Ruiz" y "Berta Solís".
+```{r ej21}
+nombresEmpleados <- c("Ana Lopez", "Carlos Ruiz", " Berta Solis")
+```
+
+## 22.	Dado otro vector departamentos con los departamentos de los empleados: "Recursos Humanos", "Finanzas", "Marketing", concatena los dos vectores.
+```{r ej22}
+departamentos <- c("Recursos Humanos", "Finanzas", "Marketing")
+concatenado <- paste("(",nombresEmpleados,", ", departamentos,")")
+
+concatenado 
+```
+
+## 23.	Calcula la longitud de cada nombre en nombresEmpleados con la función nchar()
+```{r ej23}
+long_nombres <- nchar(nombresEmpleados)
+
+long_nombres
+
+prueba <- paste("Nombre: ",nombresEmpleados,", Long Nombre: ",long_nombres)
+prueba
+```
+
+## 24.	Convierte todos los nombres en nombresEmpleados a mayúsculas. (toupper())
+```{r ej24}
+nomMayus <- toupper(nombresEmpleados)
+```
+
+## 25.	Convierte todos los nombres en nombresEmpleados a minúsculas. (tolower())
+```{r ej25}
+nomMinus <- tolower(nombresEmpleados)
+```
+
+## 26.	Extrae el apellido de cada nombre en nombresEmpleados utilizando sapply() y una función definida por ti que separe nombre y apellido y devuelva el apellido. 
+```{r ej10}
+extraer_apellido <- function(nombre) { 
+  partes <- strsplit(nombre, " ")[[1]]
+  apellido <- partes[2]
+
+  return(apellido)
+  }
+apellidos <- sapply(nombresEmpleados, extraer_apellido)
+
+apellidos
+
+```
+
+## 27.	Divide cada nombre en nombresEmpleados en nombre y apellido con strsplit()
+```{r ej27}
+nombresDiv <- strsplit(nombresEmpleados, " ")
+```
+
+## 10.	Calcula el logaritmo de 10. (log())
+```{r ej10}
+  
+```
+
+## 10.	Calcula el logaritmo de 10. (log())
+```{r ej10}
+  
+```
+
+## 10.	Calcula el logaritmo de 10. (log())
+```{r ej10}
+  
+```

@@ -1,0 +1,25 @@
+---
+title: "Funcion1"
+output: html_document
+---
+
+Implementar una función que reciba una cadena de caracteres y cambie la k-ésima letra por la letra que le pasemos como segundo argumento, siendo k el tercer argumento. Debe ajustarse al siguiente esqueleto.
+Asegurarse de que k sea menor que el número de letras de la cadena de caracteres y devolver NULL en caso contrario.
+PISTA: consulta la ayuda de la función substr. Se puede utilizar también en la parte izquierda de una asignación, para reemplazar caracteres: substr(...) = algo.
+Invocarla para reemplazar en la cadena “Hola” la H por una M y almacenar el resultado devuelto por la función en la variable reemplazada.
+Utilizando sapply, invocarla sobre el vector c("Juan", "bala", "cala") reemplazando siempre la segunda letra por la letra “o”. Almacenar el resultado en la variable vec.reemp.
+
+```{r }
+cambiarLetra <- function(cadena,letra, posicion){
+  # Asegurarse de que la posicion <= longitud cadena
+  if (posicion <= nchar(cadena)) {
+  substr(cadena, start = posicion, stop = posicion) <- letra
+  }
+  cadena
+}
+
+nombres <- c("Juan", "bala", "cala")
+vecReemp <- sapply(nombres, cambiarLetra,letra="o",posicion=2)
+
+vecReemp
+```
