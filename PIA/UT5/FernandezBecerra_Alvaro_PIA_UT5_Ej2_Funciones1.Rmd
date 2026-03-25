@@ -13,9 +13,10 @@ Utilizando sapply, invocarla sobre el vector c("Juan", "bala", "cala") reemplaza
 cambiarLetra <- function(cadena,letra, posicion){
   # Asegurarse de que la posicion <= longitud cadena
   if (posicion <= nchar(cadena)) {
+  # Esto básicamente coge una cadena y sustituye x (en este caso 1 letra) en una posicion
   substr(cadena, start = posicion, stop = posicion) <- letra
   }
-  cadena
+  return(cadena)
 }
 
 nombres <- c("Juan", "bala", "cala")
