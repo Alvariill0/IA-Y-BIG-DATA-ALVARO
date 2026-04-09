@@ -42,6 +42,6 @@ while True:
     producer.flush()
 
     print("Mensaje enviado:", mensaje)
-    print("\n- Mensaje enviado por el productor de Entrada1")
+    print("\n- Mensaje enviado por el productor de Entrada1\n")
 
     time.sleep(10)

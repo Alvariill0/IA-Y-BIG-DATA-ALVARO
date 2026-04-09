@@ -1,0 +1,179 @@
+---
+title: "Cuaderno 4: Visualización Basica en R"
+output: html_document
+---
+
+## 1. Gráficos Básicos y Tipos de Gráficos
+
+El comando principal para generar una nueva gráfica en R es `plot(x, y)`. Por defecto, este comando genera un diagrama de dispersión (solo puntos), pero podemos modificar su comportamiento utilizando el argumento `type`.
+
+```{r graficos-basicos}
+# Generamos unos datos de ejemplo
+x <- 1:10
+y <- x^2
+
+# 1. Gráfico de dispersión (por defecto)
+plot(x, y, type="p", main="Sólo puntos") #
+
+# 2. Gráfico de líneas
+plot(x, y, type="l", main="Sólo líneas") #
+
+# 3. Gráfico de líneas y puntos
+plot(x, y, type="b", main="Líneas y puntos") #
+
+# 4. Gráfico tipo escalera
+plot(x, y, type="s", main="Tipo escalera") #
+
+# 5. Histograma básico (tipo "h")
+plot(x, y, type="h", main="Histograma (tipo h)") #
+
+# Nota: Para un histograma real sobre frecuencias de un vector se usa hist()
+hist(rnorm(100), main="Histograma con hist()") 
+
+help(plot)
+```
+
+## 2. Personalización de Gráficos
+
+Podemos enriquecer nuestras visualizaciones añadiendo textos explicativos, modificando los límites de los ejes o cambiando el estilo visual de los elementos.
+
+```{r personalizacion}
+x <- 1:20
+y <- sqrt(x)
+
+# Personalización completa en una sola llamada a plot()
+plot(x, y, 
+     main = "Raíz Cuadrada de X",       # Título principal
+     sub = "Gráfico de demostración",   # Subtítulo
+     xlab = "Eje X (Valores 1-20)",     # Título en el eje X
+     ylab = "Eje Y (Raíz cuadrada)",    # Título en el eje Y
+     xlim = c(0, 25),                   # Límites del eje X
+     ylim = c(0, 5),                    # Límites del eje Y
+     col = "blue",                      # Color del gráfico
+     pch = 17,                          # Tipo de símbolo (ej. 17 es un triángulo relleno)
+     cex = 1.5,                         # Tamaño del símbolo (1.5 = 50% mayor)
+     font = 2)                          # Fuente (2 = negrita)
+```
+
+*Nota sobre parámetros visuales:* \* `pch`: Modifica el tipo de símbolo (puedes probar escribiendo un carácter entre comillas, ej: `pch="@"`). \* `cex`: Escala el tamaño del símbolo (1 es el valor por defecto). \* `lwd`: Cambia la anchura de la línea. \* `type`: Define el tipo de línea (para gráficos de líneas).
+
+## 3. Añadir Elementos a un Gráfico Abierto
+
+Una vez creado un gráfico con `plot()`, podemos añadirle nuevas capas utilizando otros comandos auxiliares.
+
+```{r capas-graficas}
+# Creamos un gráfico inicial vacío (sin dibujar los datos)
+plot(1:10, 1:10, type="n", main="Construyendo por capas", xlab="X", ylab="Y") 
+
+# Añadimos puntos sobre el gráfico abierto
+points(c(2, 4, 6, 8), c(2, 4, 6, 8), col="red", pch=19, cex=2) 
+
+# Añadimos líneas
+lines(1:10, (1:10)^0.5, col="blue", lwd=2) 
+
+# Añadimos una línea recta (por ejemplo, una tendencia o corte)
+abline(h=5, col="green", lwd=2, lty=2) 
+
+# Añadimos segmentos específicos
+segments(x0=8, y0=2, x1=8, y1=8, col="purple") 
+
+# Añadimos un texto en coordenadas específicas
+text(x=5, y=2, labels="Texto personalizado aquí", col="darkred") 
+```
+
+## 4. Exportación de Gráficos
+
+Aunque en RStudio los gráficos se abren automáticamente en el panel "Plots", cuando trabajamos en scripts o queremos exportar imágenes con dimensiones exactas, debemos seguir un proceso de 3 pasos: abrir el dispositivo, plotear y cerrarlo.
+
+```{r exportacion, eval=FALSE}
+# 1. Abrir la salida gráfica indicando el formato y dimensiones deseadas
+# Ejemplos de formatos soportados: 
+# pdf("myplot.pdf", width=10, height=7.1)
+# postscript("myplot.ps")
+# jpeg("myplot.jpeg")
+
+png("mi_grafico_exportado.png", width=800, height=600) #
+
+# 2. Realizar el gráfico
+plot(x, y, main="Gráfico Exportado", col="darkgreen", pch=16)
+
+# 3. Cerrar la salida gráfica para guardar el archivo físicamente en disco
+dev.off() #
+```
+
+## Introducción a ggplot2: La Gramática de los Gráficos
+
+A diferencia de la función `plot()` de R Base, **ggplot2** se basa en la idea de añadir capas independientes para construir una visualización. La estructura básica siempre sigue este esquema:
+
+1.  **Datos**: El dataframe que contiene la información.
+2.  **Aesthetics (aes)**: Define qué variables van en los ejes ($x, y$), colores o formas.
+3.  **Geoms**: La capa geométrica que define el tipo de gráfico (puntos, líneas, barras).
+
+Puedes consultar la [Chuleta de ggplot2](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://diegokoz.github.io/intro_ds/fuentes/ggplot2-cheatsheet-2.1-Spanish.pdf) para ver todas las funciones de personalización.
+
+### 1. Comparativa de tipos de gráficos
+
+En lugar de usar el argumento `type`, añadimos diferentes capas `geom`.
+
+```{r ejemplos-basicos}
+library(ggplot2)
+
+# Creamos un dataset de ejemplo
+df <- data.frame(
+  x = 1:10,
+  y = (1:10)^2
+)
+
+# Gráfico de dispersión (Equivalente a type="p")
+
+ggplot(df, aes(x = x, y = y)) + 
+  geom_point(color = "blue", size = 3) +
+  labs(title = "Gráfico de Puntos")
+
+# Gráfico de líneas y puntos (Equivalente a type="b")
+
+ggplot(df, aes(x = x, y = y)) + 
+  geom_line(color = "grey") +
+  geom_point(color = "red", size = 2) +
+  labs(title = "Combinación de Líneas y Puntos")
+
+```
+
+## 2. Personalización avanzada
+
+En ggplot2, los títulos y etiquetas se gestionan con la función **labs()**, y el aspecto visual general con los **themes**
+
+```{r - personalizacion}
+
+# Ejemplo de personalización completa
+ggplot(df, aes(x = x, y = y)) +
+  geom_line(color = "darkgreen", size = 1.2, linetype = "dashed") +
+  geom_point(shape = 18, size = 4, color = "darkgreen") +
+  labs(
+    title = "Evolución Exponencial",
+    subtitle = "Ejemplo de visualización con ggplot2",
+    x = "Variable Independiente (X)",
+    y = "Resultado (Y)",
+    caption = "Programación de IA"
+  ) +
+  theme_minimal()
+
+```
+
+## 3. Añadir anotaciones y líneas de referencia
+
+En lugar de abline() o text(), usamos capas específicas como geom_hline o annotate
+
+```{r}
+ggplot(df, aes(x = x, y = y)) +
+  geom_col(fill = "steelblue") + # Gráfico de barras
+  geom_hline(yintercept = 50, color = "red", linetype = "dotted", size = 1) +
+  annotate("text", x = 3, y = 55, label = "Umbral Crítico", color = "red") +
+  labs(title = "Gráfico de Barras con Línea de Referencia")
+```
+
+```{r}
+```
+
+```{r}
+```

@@ -1,0 +1,238 @@
+---
+title: "UT5_EJ3_Analisis"
+output: html_document
+date: "2025-03-31"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+##Pendientes: convertir id en numero \## Volver a pedir los excel
+generándo: nombre, valores NA para las deudas, reducción de deudas en el
+2017
+
+#Análisis exploratorio y limpieza de datos
+
+## Introducción
+
+Vamos a aprender a usar algunos paquetes para limpiar datos y
+estructurar información en R. Pero, antes de ello, es importante
+recordar como realizar pequeños análisis exploratorio de los datos. Este
+primer paso consiste en explorar las variables de nuestra base de datos
+para:
+
+• Encontrar patrones • Identificar errores • Plantear nuevas hipótesis o
+preguntas • Identificar relaciones entre variables • Empezar a encontrar
+respuestas a nuestras preguntas de investigación
+
+Es importante considerar que primer paso no corresponde a un análisis
+estadístico riguroso, pero puede permitirnos encontrar respuestas o
+guiarnos en el tipo de análisis que queremos realizar.
+
+## Explorar los datos
+
+Para este primer ejercicio vamos a usar la base de datos denominada
+encuesta. Antes de comenzar, hay que cambiar el directorio de trabajo y
+seleccionar el folder en donde tenemos nuestros archivos.
+
+Esto se hace con el comando setwd() .
+
+## 1. Cambiar el directorio de trabajo
+
+```{r}
+#setwd("C:/DataEdelgado/Encar/DocEducacion/Curso2024-25/BD&IA/Tema5 - Introducción a R/UT5_EJ3_Limpieza de Datos") 
+#getwd()
+Encuesta <- read.csv("Encuesta.csv",sep=",") 
+head(Encuesta)
+```
+
+## Los datos tienen las siguientes variables:
+
+• id: identificador único. • Género: (Hombre o Mujer). • Estado civil:
+(Soltero(a), Viudo(a), Separado(a), Casado(a), Union libre). • Nivel
+escolar: (0: sin nivel educativo o primeria incompleta, 1: Primaria
+completa o secundaria incompleta, 2: Secundaria completa o preparatoria
+incompleta, 3: Preparatoria completa o licenciatura incompleta, 4:
+Licenciatura completa o posgrado incompleto, 5: Posgrado terminado). •
+Ingreso: ingreso neto mensual. • Tipo de vivienda: (Propia, Propia
+pagando, Alquilada, Prestada, Otro) • Mensualidad: Mensualidad pagada
+por la vivienda, cuando esta no es propia. • Región: región en el país
+donde vive la persona (Norte, Centro, Sur) • Zona: zona donde vive la
+persona (Urbana o Rural).
+
+## 2. Exploración de datos
+
+Con la función glipmse de dplyr vemos una visión rápida y concisa de la
+estructura del dataset incluyendo los tipos de datos
+
+```{r}
+install.packages("dplyr")
+library(dplyr) 
+glimpse(Encuesta)
+```
+
+Podemos ver que tenemos tres variables numericas (int) y el resto son
+caracteres o texto. Recordemos que también hay otros comandos
+exploratorios como: str(), head(), tail(), class().
+
+str() proporciona un desglose similar
+
+Compruébalo
+
+```{r}
+str(Encuesta)
+```
+
+## 3. IDentificación de variables categóricas
+
+Podemos convertir las variables de texto a factores (variables con
+categorías) con el comando as.factor(). Por ejemplo si queremos
+convertir la variable de Genero, sería:
+
+```{r}
+Encuesta$Genero <- as.factor(Encuesta$Genero)
+
+str(Encuesta)
+```
+
+To do: Identifica el resto de variables susceptibles de convertirse a un
+factor y conviértelas
+
+```{r}
+Encuesta$Estado_civil <- as.factor(Encuesta$Estado_civil)
+Encuesta$Tipo_vivienda <- as.factor(Encuesta$Tipo_vivienda)
+Encuesta$Region <- as.factor(Encuesta$Region)
+Encuesta$Zona <- as.factor(Encuesta$Zona)
+
+str(Encuesta)
+```
+
+Esto podríamos también haberlo hecho en un solo comando aplicando una
+función a todas las columnas, así;
+
+# Aplicamos una misma función a todas las columnas con lapply
+
+```{r}
+col<-c("Genero","Estado_civil","Nivel_escolaridad","Tipo_vivienda","Region","Zona" )
+
+Encuesta[col] <- lapply(Encuesta[col], factor)
+
+str(Encuesta)
+```
+
+## 4. Exploración de variables categóricas
+
+-   Para las variables categóricas, una forma de explorar su
+    comportamiento es por medio de tablas de frecuencia, es decir, ver
+    el número de ocurrencias de cada categoría de la variable.
+
+Esto lo hacemos con el comando table().
+
+Esta exploración se puede hacer siendo las columnas vectores y no
+factores pero el redimiento es peor.
+
+```{r}
+table(Encuesta$Genero)
+
+table(Encuesta$Estado_civil)
+
+table(Encuesta$Region)
+
+table(Encuesta$Zona)
+```
+
+-   También es habitual crear tablas de contingencia para ver cómo se
+    distribuyen las observaciones combinando varias variables
+    categóricas.
+
+Vamos a observar el género por estado civil y el tipo de vivienda por
+zona
+
+```{r}
+table(Encuesta$Genero, Encuesta$Estado_civil)
+
+table(Encuesta$Tipo_vivienda, Encuesta$Zona)
+```
+
+To do: ¿Se te ocurre alguno más interesante para revisar?
+
+-   Los números absolutos a veces no son útiles para entender los datos,
+    por lo que es mejor utilizar proporciones. Para ello usamos el
+    comando prop.table().
+
+```{r}
+genero <- prop.table(table(Encuesta$Genero))
+
+prop.table(table(Encuesta$Estado_civil))
+
+prop.table(table(Encuesta$Region))
+
+prop.table(table(Encuesta$Zona))
+```
+
+TO DO: Calcula y redondea las proporciones de las combinaciones de las
+columnas Género con Estado civil y Tipo de vivienda con Zona:
+
+```{r}
+round(prop.table(table(Encuesta$Genero, Encuesta$Estado_civil)),2)
+
+round(prop.table(table(Encuesta$Tipo_vivienda, Encuesta$Zona)),2)
+```
+
+El comando prop.table() se puede usar con un argumento adicional para
+calcular las proporciones por fila o por columna en lugar de las
+proporciones totales. 1 para filas y 2 para columnas
+
+Rehaz los cálculos anteriores para filas y columnas
+
+Observa las diferencias
+
+```{r}
+round(prop.table(table(Encuesta$Tipo_vivienda, Encuesta$Zona),1),2)
+
+round(prop.table(table(Encuesta$Tipo_vivienda, Encuesta$Zona),2),2)
+```
+
+## 5. Exploración de variables numéricas
+
+Es habitual revisar los datos estadísticos las variables numéricas
+Tenemos varias opciones.
+
+Podemos usar el comando summary(). Este comando nos da los principales
+estadísticos descriptivos (mínimo, máximo, cuartiles, promedio,mediana).
+
+Este comando podemos aplicarlo a todo el dataframe (nos da los
+estadísticos de todas las variables a la vez) o solo a una variable.
+
+```{r}
+summary(Encuesta)
+
+summary(Encuesta$Ingreso)
+```
+
+Un comando muy útil es describe() del paquete Hmisc, ya que nos muestra
+un panorama más completo de las variables. En el caso de las numéricas
+nos muestra los estadísticos descriptivos, la cantidad de observaciones,
+los valores perdidos. Para las variables categóricas, muestra la
+frecuencia, las proporciones y los valores perdidos.
+
+Con require() podemos cargar un paquete o librería.
+
+require() no genera un error si el paquete no está disponible, lo que lo
+hace útil para situaciones en las que no deseas que tu script falle.
+
+```{r}
+install.packages("Hmisc") 
+library(Hmisc)
+
+describe(Encuesta)
+describe(Encuesta$Estado_civil)
+```
+# - LIMPIEZA DE DATOS ARCHIVOS MOROSIDAD
+
+```{r}
+install.packages("dplyr") 
+install.packages("tidyr") 
+install-packages("readxl")
+install.packages("ggplot")
+```
