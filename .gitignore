@@ -3,3 +3,6 @@ artists.csv
 _pycache__/
 __pycache__/
 *.pem
+*.xlsx
+*.csv
+*.rar
