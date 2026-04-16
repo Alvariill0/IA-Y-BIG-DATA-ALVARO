@@ -1,0 +1,235 @@
+---
+title: "Shiny_Alvaro"
+output: html_document
+runtime: shiny
+---
+# Instalación e importación
+```{r}
+install.packages("shiny")
+
+```
+
+```{r}
+library(shiny)
+```
+# ¿Qué es Shiny?
+
+Shiny es un paquete de R desarrollado para transformar scripts y análisis en aplicaciones web interactivas.
+
+Sse pueden crear interfaces con botones, selectores, tablas, gráficos y otros elementos visuales que reaccionan a lo que hace el usuario.
+Esto es útil cuando no solo se quiere enseñar un resultado fijo, sino permitir que la persona que usa la aplicación cambie parámetros y vea cómo se actualiza la información en tiempo real.
+
+Una de sus ventajas es que no obliga a programar toda la parte del frontend con HTML, CSS o JavaScript, aunque se puede ampliar con dichas tecnologias si hiciese falta.
+
+Entonces basicamente Shiny conecta 2 partes:
+
+- La parte visual de la aplicación, es decir, lo que ve el usuario.
+- La parte lógica, donde se procesan los datos y se generan los resultados.
+
+Estas dos partes suelen llamarse `ui` y `server`.
+---
+
+# Estructura básica
+
+Una aplicación Shiny sencilla tiene normalmente tres elementos:
+
+- `ui`: define la interfaz de usuario.
+- `server`: contiene la lógica de la aplicación.
+- `shinyApp(ui, server)`: une ambas partes y ejecuta la app.
+
+---
+
+# `UI` (Interfaz)
+
+La UI define la estructura visual.
+
+Funciones principales:
+
+- `fluidPage()`: contenedor principal
+- `titlePanel()`: título
+- `sidebarLayout()`: divide la pantalla en una zona lateral y una principal.
+- `sidebarPanel()`: zona donde suelen ir los controles
+- `mainPanel()`: zona donde se muestran los resultados
+- `selectInput()`: menú desplegable.
+- `sliderInput()`: barra deslizante.
+- `numericInput()`: caja para escribir números.
+
+**Importante**:  
+`sidebarPanel()` y `mainPanel()` *NO funcionan solos*, deben ir ambos dentro de `sidebarLayout()`.
+
+## Ejemplo
+
+```{r}
+fluidPage(
+  titlePanel("Titulo aplicacion"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("var", "Variable:", choices = c("ºC","ºF"))
+    ),
+    mainPanel(
+      p("Aquí irian los resultados")
+    )
+  )
+)
+```
+
+---
+
+# Inputs (controles)
+
+Van dentro de `sidebarPanel()` normalmente:
+
+```{r}
+sidebarPanel(
+  selectInput("variable", "Variable:", choices = c("ºC","ºF")),
+  sliderInput("bins", "Barras:", min = 5, max = 20, value = 10),
+  numericInput("num", "Número:", value = 1)
+)
+```
+
+---
+
+# Outputs (salidas)
+
+En la UI SOLO se define el espacio:
+
+```{r}
+fluidPage(
+  titlePanel("Titulo aplicacion"),
+  mainPanel(
+    plotOutput("grafico"),
+    tableOutput("tabla")
+  )
+)
+
+```
+
+---
+
+# `Server` (lógica)
+
+Aquí se generan los resultados.
+
+## Gráficos
+
+```{r}
+server <- function(input, output) {
+  output$grafico <- renderPlot({
+    hist(mtcars[[input$variable]])
+  })
+}
+```
+
+## Tablas
+
+```{r}
+server <- function(input, output) {
+  output$tabla <- renderTable({
+    head(mtcars)
+  })
+}
+```
+
+**Importante**:  
+- Los output de los elementos como `tableOutput` van en la UI  
+- Los render como `renderTable`` van en server  
+- Se conectan por el mismo nombre "grafico" / "tabla"
+
+---
+
+# Funcionamiento reactivo
+
+Uno de los conceptos más importantes de Shiny es la **reactividad**. Esto significa que la aplicación detecta cambios en la entrada del usuario y actualiza automáticamente la salida relacionada.
+
+Ejemplo:
+
+- Usuario cambia `input$variable`
+- `renderPlot()` se vuelve a ejecutar
+- El gráfico cambia sin recargar la página
+
+---
+
+# Ventajas de Shiny
+
+Shiny tiene varias ventajas que hacen que sea interesante en proyectos de datos:
+
+- Permite crear aplicaciones sin desarrollar una web completa desde cero.
+- Hace más fácil presentar resultados de una forma visual.
+- Se integra bien con gráficos, tablas y modelos hechos en R.
+- Es útil para prácticas, paneles de control y demostraciones.
+- Ayuda a que un análisis sea más interactivo y menos estático.
+
+# Inconvenientes / limitaciones
+
+Aunque es una herramienta muy útil, también tiene algunos puntos débiles:
+
+- Si la app crece mucho, el código puede volverse difícil de mantener.
+- El diseño visual por defecto es sencillo y a veces hay que personalizarlo.
+- En aplicaciones grandes se debe cuidar el rendimiento
+
+---
+# Ejemplo completo
+
+- Este ejemplo usa el dataset `mtcars`, viene incluido en R y contiene datos sobre 32 coches y sus caracteristicas.
+El usuario elige una variable numérica y también el número de barras del histograma.
+
+- Cuando cambia alguno de esos controles, la app actualiza automáticamente el gráfico. Además, debajo se muestra una tabla con algunos valores de la variable seleccionada.
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  titlePanel("Ejemplo Shiny"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(
+        "variable",
+        "Variable:",
+        choices = c("mpg", "hp", "wt", "qsec")
+      ),
+      sliderInput(
+        "bins",
+        "Barras:",
+        min = 5,
+        max = 20,
+        value = 10
+      )
+    ),
+    mainPanel(
+      plotOutput("histograma"),
+      tableOutput("tabla")
+    )
+  )
+)
+
+server <- function(input, output) {
+  output$histograma <- renderPlot({
+    hist(
+      mtcars[[input$variable]],
+      breaks = input$bins,
+      col = "lightblue",
+      border = "black",
+      main = paste("Histograma de", input$variable),
+      xlab = input$variable
+    )
+  })
+
+  output$tabla <- renderTable({
+  datos <- head(mtcars[, input$variable, drop = FALSE])
+  colnames(datos) <- input$variable
+  datos
+}, rownames = TRUE)
+}
+
+shinyApp(ui, server)
+```
+
+---
+
+# Conclusión
+
+Shiny separa claramente:
+
+- **Definición visual (UI)**
+- **Lógica reactiva (server)**
+
+Entender esa separación es la clave para evitar errores.
