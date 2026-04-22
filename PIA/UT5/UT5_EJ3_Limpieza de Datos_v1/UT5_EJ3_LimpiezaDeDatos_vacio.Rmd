@@ -206,7 +206,7 @@ morosidad_aumento <- mutate(morosidad_aumento, cambio.deuda = deuda17 - deuda16,
 Filtrar observaciones sin NA en Ingreso y Tipo de vivienda
 ```{r}  
 Encuesta <- read.csv("Encuesta.csv",sep=",")
-encuesta_clean <- Encuesta %>% filter(!is.na(Ingreso), !is.na('Tipo de vivienda'))
+encuesta_clean <- Encuesta %>% filter(!is.na(Ingreso), !is.na('Tipo_vivienda'))
 head(Encuesta)
 ```
 
@@ -244,65 +244,114 @@ tabla_contingencia
 
 ### 4. Orden de nivel escolar y distribucion 
 ## Convierte nivel escolaridad a un factor descriptivo en vez de numerico
+```{r}
+Encuesta$Nivel_escolar <- factor(Encuesta$`Nivel_escolaridad`,
+                                 levels = 0:5,
+                                 labels = c("Sin nivel/Primaria inc.", "Primaria comp./Sec inc.",
+                                            "Secundaria comp./Prep inc.", "Preparatoria comp./Lic inc.",
+                                            "Licenciatura comp./Pos inc.", "Posgrado terminado"))
+```
 ## y visualiza su distribución en un gráfico.
 ## Usa para ello la función factor, cuyo tercer parámetro es
-
-
+```{r}
+ggplot(Encuesta, aes(x = Nivel_escolaridad)) + geom_bar()
+```
   
 ### 5.Filtrar los casos en los que la vivienda no es propia y crear un scatter plot de Ingreso vs. Mensualidad.
+```{r}
+no_propia <- Encuesta[ Encuesta$`Tipo_vivienda` %in% c("Alquilada", "Prestada", "Otro"), ]
 
+ggplot(no_propia, aes(x = Ingreso, y = Mensualidad)) + geom_point()
+```
 
 
 ### 6. Agrupar por Región y calcular ingreso promedio y mediana;
 ### Representarlo con gráficos de barras y boxplot.
-
+```{r}
+ingreso_region <- aggregate(Ingreso ~ Region, data = Encuesta, FUN = mean, na.rm = TRUE)
+ingreso_region
+```
 
             
 # Gráfico de barras del ingreso promedio
-
+```{r}
+mediana_region <- aggregate(Ingreso ~ Region, data = Encuesta, FUN = median, na.rm = TRUE)
+mediana_region
+```
   
 # Boxplot de Ingreso por Región
-
+```{r}
+ggplot(ingreso_region, aes(x = Region, y = Ingreso)) +
+  geom_bar(stat = "identity")
+```
 
 ### 7. Calcular la frecuencia de cada combinación de Tipo de vivienda y Zona y representarlo en un gráfico de barras agrupadas.
+```{r}
+tabla_vivienda_zona <- table(Encuesta$Tipo_vivienda, Encuesta$Zona)
+tabla_vivienda_zona
 
+tabla_vivienda_zona_df <- as.data.frame(tabla_vivienda_zona) #dataframe para representar el grafico
+
+ggplot(tabla_vivienda_zona_df, aes(x = Var1, y = Freq, fill = Var2)) +
+  geom_bar(stat = "identity", position = "dodge")
+```
 
 
 ### 8. Calcular el porcentaje de cada nivel escolar dentro de cada región y representarlo en un gráfico de barras apiladas (porcentajes).
+```{r}
+tabla_porcentajes <- prop.table(table(Encuesta$Region, Encuesta$Nivel_escolaridad), margin = 1) * 100
+tabla_porcentajes_df <- as.data.frame(as.table(tabla_porcentajes))
 
+ggplot(tabla_porcentajes_df, aes(x = Var1, y = Freq, fill = Var2)) +
+  geom_bar(stat = "identity")
+```
 
 
 ### 9. Visualizar la distribución del ingreso mediante un gráfico de densidad, diferenciando por género.
-
+```{r}
+ggplot(Encuesta, aes(x = Ingreso, fill = Genero)) +
+  geom_density(alpha = 0.5)
+```
 
 
 ### 10.Explorar la relación entre Estado civil y Nivel escolar mediante un gráfico de mosaico o heatmap de conteos. geom_tile()
-
+```{r}
+tabla_estado_nivel <- table(Encuesta$Estado_civil, Encuesta$Nivel_escolaridad)
+ggplot(as.data.frame(as.table(tabla_estado_nivel)), aes(x = Var1, y = Var2, fill = Freq)) +
+  geom_tile()
+```
 
 
 # Para morosidad
-
+```{r}
 install.packages("ggplot2")
 library(ggplot2)
-## 1. Crear una nueva variable cambio_deuda que sea la diferencia entre deuda17 y deuda16.
+```
 
+## 1. Crear una nueva variable cambio_deuda que sea la diferencia entre deuda17 y deuda16.
+```{r}
+```
 
 
 
 ## 1. Agrupar por la situación de la deuda en 2017 y calcular el promedio de deuda.
-
+```{r}
+```
 
 
 ## 2. Explora la situación de la deuda en 2017 con un histograma con rangos de 5000
-
+```{r}
+```
 
 
 ## 3. Representación por Estado con un boxplot las deudas de 2016 y 2017.
 # Boxplot para deuda16
-
+```{r}
+```
 
 # Boxplot para deuda17
-
+```{r}
+```
 
 ## 4. Representar el cambio_deuda con un gráfico de barras para ver en qué medida aumenta o disminuye la deuda.
 ## Para ello crea una nueva variable categórica con rangos de aumento o disminución de la deuda. 
