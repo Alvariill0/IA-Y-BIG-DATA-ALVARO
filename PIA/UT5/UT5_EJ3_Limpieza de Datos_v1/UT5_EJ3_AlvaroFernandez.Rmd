@@ -1,0 +1,343 @@
+---
+title: "UT5_EJ3_Analisis"
+output: html_document
+date: "2025-03-31"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+# PIA UT5 EJERCICIO 3 - ALVARO FERNANDEZ BECERRA
+
+## 1. Limpieza de datos
+
+Vamos a necesitar
+
+```{r, message=FALSE, warning=FALSE}
+# Instalar paquetes solo si no están instalados
+if (!require(dplyr))   install.packages("dplyr")
+if (!require(tidyr))   install.packages("tidyr")
+if (!require(readxl))  install.packages("readxl")
+if (!require(ggplot2)) install.packages("ggplot2")
+if (!require(stringr)) install.packages("stringr")
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(ggplot2)
+library(stringr)
+```
+
+------------------------------------------------------------------------
+
+# Ejercicios individuales para Encuesta
+
+### 1. Filtrado y limpieza
+
+Filtrar observaciones sin NA en Ingreso y Tipo de vivienda
+
+```{r}
+Encuesta <- read.csv("Encuesta.csv", sep = ",")
+
+encuesta_clean <- Encuesta %>%
+  filter(!is.na(Ingreso), !is.na(Tipo_vivienda))
+
+head(Encuesta)
+```
+
+### 2. Agrupar por Género y calcular el ingreso promedio.
+
+```{r}
+encuesta_genero <- encuesta_clean %>%
+  group_by(Genero) %>%
+  summarise(Ingreso_medio = mean(Ingreso, na.rm = TRUE))
+
+encuesta_genero
+```
+
+### Crea un gráfico de barras para esos datos
+
+```{r}
+ggplot(encuesta_genero, aes(x = Genero, y = Ingreso_medio, fill = Genero)) +
+  geom_bar(stat = "identity", colour = "black") +
+  labs(title = "Ingreso medio por Género",
+       x = "Género", y = "Ingreso medio")
+```
+
+### 3. Crear una tabla de contingencia para ver la frecuencia de Estado civil por Género.
+
+```{r}
+tabla_contingencia <- table(Encuesta$Estado_civil, Encuesta$Genero)
+tabla_contingencia
+```
+
+### Representar la tabla con ggplot
+
+```{r}
+# Convertir la tabla a data frame para ggplot
+tabla_contingencia_df <- as.data.frame(as.table(tabla_contingencia))
+colnames(tabla_contingencia_df) <- c("Estado_civil", "Genero", "Frecuencia")
+
+ggplot(tabla_contingencia_df, aes(x = Estado_civil, y = Frecuencia, fill = Genero)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Frecuencia de Estado Civil por Género",
+       x = "Estado Civil", y = "Frecuencia") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+### 4. Orden de nivel escolar y distribución
+
+#### Convierte nivel escolaridad a un factor descriptivo en vez de numérico
+
+```{r}
+encuesta_clean$Nivel_escolar <- factor(encuesta_clean$Nivel_escolaridad,
+                                 levels = 0:5,
+                                 labels = c("Sin nivel/Primaria inc.",
+                                            "Primaria comp./Sec inc.",
+                                            "Secundaria comp./Carr inc.",
+                                            "Carrera comp./Lic inc.",
+                                            "Licenciatura comp./Pos inc.",
+                                            "Posgrado terminado"))
+head(Encuesta)
+```
+
+#### Visualiza su distribución en un gráfico
+
+```{r}
+ggplot(encuesta_clean, aes(x = Nivel_escolar)) +
+  geom_bar(fill = "steelblue", colour = "black") +
+  labs(title = "Distribución del Nivel Escolar",
+       x = "Nivel Escolar", y = "Frecuencia") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+### 5. Filtrar los casos en los que la vivienda no es propia y crear un scatter plot de Ingreso vs. Mensualidad.
+
+```{r}
+no_propia <- encuesta_clean[encuesta_clean$Tipo_vivienda %in% c("Alquilada", "Prestada", "Otro"), ]
+
+ggplot(no_propia, aes(x = Ingreso, y = Mensualidad, colour = Tipo_vivienda)) +
+  geom_point(alpha = 0.6) +
+  labs(title = "Ingreso vs. Mensualidad (vivienda no propia)",
+       x = "Ingreso", y = "Mensualidad")
+```
+
+### 6. Agrupar por Región y calcular ingreso promedio y mediana; representarlo con gráficos de barras y boxplot.
+
+```{r}
+ingreso_region <- encuesta_clean %>%
+  group_by(Region) %>%
+  summarise(
+    Ingreso_medio   = mean(Ingreso, na.rm = TRUE),
+    Ingreso_mediana = median(Ingreso, na.rm = TRUE)
+  )
+ingreso_region
+```
+
+#### Gráfico de barras del ingreso promedio
+
+```{r}
+ggplot(ingreso_region, aes(x = Region, y = Ingreso_medio, fill = Region)) +
+  geom_bar(stat = "identity", colour = "black") +
+  labs(title = "Ingreso promedio por Región",
+       x = "Región", y = "Ingreso medio") 
+```
+
+#### Boxplot de Ingreso por Región
+
+```{r}
+ggplot(encuesta_clean, aes(x = Region, y = Ingreso, fill = Region)) +
+  geom_boxplot(outlier.colour = "red", outlier.size = 1.5) +
+  labs(title = "Distribución del Ingreso por Región",
+       x = "Región", y = "Ingreso")
+```
+
+### 7. Calcular la frecuencia de cada combinación de Tipo de vivienda y Zona y representarlo en un gráfico de barras agrupadas.
+
+```{r}
+tabla_vivienda_zona <- table(encuesta_clean$Tipo_vivienda, Encuesta$Zona)
+tabla_vivienda_zona
+
+tabla_vivienda_zona_df <- as.data.frame(tabla_vivienda_zona)
+colnames(tabla_vivienda_zona_df) <- c("Tipo_vivienda", "Zona", "Frecuencia")
+
+ggplot(tabla_vivienda_zona_df, aes(x = Tipo_vivienda, y = Frecuencia, fill = Zona)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Frecuencia de Tipo de Vivienda por Zona",
+       x = "Tipo de Vivienda", y = "Frecuencia")
+```
+
+### 8. Calcular el porcentaje de cada nivel escolar dentro de cada región y representarlo en un gráfico de barras apiladas (porcentajes).
+
+```{r}
+tabla_porcentajes <- prop.table(table(encuesta_clean$Region, encuesta_clean$Nivel_escolaridad), margin = 1) * 100
+
+tabla_porcentajes_df <- as.data.frame(as.table(tabla_porcentajes))
+colnames(tabla_porcentajes_df) <- c("Region", "Nivel_escolaridad", "Porcentaje")
+
+ggplot(tabla_porcentajes_df, aes(x = Region, y = Porcentaje, fill = Nivel_escolaridad)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Distribución del Nivel Escolar por Región (%)",
+       x = "Región", y = "Porcentaje (%)")
+```
+
+### 9. Visualizar la distribución del ingreso mediante un gráfico de densidad, diferenciando por género.
+
+```{r}
+ggplot(encuesta_clean, aes(x = Ingreso, fill = Genero)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Distribución del Ingreso por Género",
+       x = "Ingreso", y = "Densidad")
+```
+
+### 10. Explorar la relación entre Estado civil y Nivel escolar mediante un heatmap de conteos (geom_tile).
+
+```{r}
+tabla_estado_nivel <- as.data.frame(as.table(
+  table(encuesta_clean$Estado_civil, encuesta_clean$Nivel_escolaridad)
+))
+colnames(tabla_estado_nivel) <- c("Estado_civil", "Nivel_escolaridad", "Conteo")
+
+ggplot(tabla_estado_nivel, aes(x = Estado_civil, y = Nivel_escolaridad, fill = Conteo)) +
+  geom_tile(colour = "white") +
+  scale_fill_gradient(low = "lightyellow", high = "darkred") +
+  labs(title = "Heatmap: Estado Civil vs. Nivel Escolar",
+       x = "Estado Civil", y = "Nivel Escolar")
+```
+
+------------------------------------------------------------------------
+
+# Para morosidad
+
+```{r}
+
+```
+
+```{r}
+deuda16 <- read_xlsx("morosidad16.xlsx")
+deuda17 <- read_xlsx("morosidad17.xlsx")
+```
+
+## 1a. Crear una nueva variable cambio_deuda que sea la diferencia entre deuda17 y deuda16.
+
+```{r}
+deuda_combinada <- inner_join(deuda16, deuda17, by = "id", suffix = c("_16", "_17"))
+
+# cambio_deuda = diferencia entre la deuda de 2017 y la de 2016
+deuda_combinada <- deuda_combinada %>%
+  mutate(cambio_deuda = deuda17 - deuda16)
+
+head(deuda_combinada)
+```
+
+## 1b. Agrupar por la situación de la deuda en 2017 y calcular el promedio de deuda.
+
+```{r}
+promedio_situacion <- deuda_combinada %>%
+  group_by(`situación_17`) %>%
+  summarise(Deuda_media = mean(deuda17, na.rm = TRUE))
+
+promedio_situacion
+```
+
+## 2. Explorar la situación de la deuda en 2017 con un histograma con rangos de 5000
+
+```{r}
+ggplot(deuda_combinada, aes(x = deuda17)) +
+  geom_histogram(binwidth = 5000, fill = "steelblue", colour = "black") +
+  labs(title = "Distribución de la deuda en 2017 (rangos de 5000)",
+       x = "Deuda 2017 (€)", y = "Frecuencia") +
+  theme_minimal()
+```
+
+## 3. Representación por Estado con un boxplot de las deudas de 2016 y 2017.
+
+#### Boxplot para deuda16
+
+```{r}
+# Tras el join, la columna "Estado" es la misma en ambos años (se usa Estado_16)
+ggplot(deuda_combinada, aes(x = Estado_16, y = deuda16, fill = Estado_16)) +
+  geom_boxplot(outlier.colour = "red") +
+  labs(title = "Distribución de la deuda 2016 por Estado",
+       x = "Estado", y = "Deuda 2016 (€)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1),
+        legend.position = "none")
+```
+
+#### Boxplot para deuda17
+
+```{r}
+ggplot(deuda_combinada, aes(x = Estado_17, y = deuda17, fill = Estado_17)) +
+  geom_boxplot(outlier.colour = "red") +
+  labs(title = "Distribución de la deuda 2017 por Estado",
+       x = "Estado", y = "Deuda 2017 (€)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1),
+        legend.position = "none")
+```
+
+## 4. Representar el cambio_deuda con un gráfico de barras usando rangos categóricos.
+
+Consideraremos aumento/disminución **moderada** si es menor de 5000 €, y
+**significativa** si supera ese umbral.
+
+```{r}
+deuda_combinada <- deuda_combinada %>%
+  mutate(categoria_cambio = case_when(
+    cambio_deuda >  5000 ~ "Aumento significativo",
+    cambio_deuda >  0    ~ "Aumento moderado",
+    cambio_deuda == 0    ~ "Sin cambio",
+    cambio_deuda > -5000 ~ "Disminución moderada",
+    TRUE                 ~ "Disminución significativa"
+  ))
+
+# Contar frecuencias por categoría y ordenar de mayor a menor aumento
+tabla_cambio <- deuda_combinada %>%
+  count(categoria_cambio) %>%
+  mutate(categoria_cambio = factor(categoria_cambio,
+    levels = c("Aumento significativo", "Aumento moderado",
+               "Sin cambio", "Disminución moderada", "Disminución significativa")))
+
+ggplot(tabla_cambio, aes(x = categoria_cambio, y = n, fill = categoria_cambio)) +
+  geom_bar(stat = "identity", colour = "black") +
+  labs(title = "Cambio en la deuda entre 2016 y 2017",
+       x = "Categoría de cambio", y = "Número de deudores") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+## 5. Calcular la deuda total por lugar de pago usando pivot_longer()
+
+```{r}
+deuda_long <- deuda_combinada %>%
+  select(id, `lugar.pago_16`, deuda16, deuda17) %>%
+  pivot_longer(cols      = c(deuda16, deuda17),
+               names_to  = "anio",
+               values_to = "deuda") %>%
+  mutate(anio = str_replace(anio, "deuda", "20"))  # "deuda16" -> "2016"
+
+deuda_total_lugar <- deuda_long %>%
+  group_by(`lugar.pago_16`, anio) %>%
+  summarise(Deuda_total = sum(deuda, na.rm = TRUE), .groups = "drop")
+
+ggplot(deuda_total_lugar, aes(x = `lugar.pago_16`, y = Deuda_total, fill = anio)) +
+  geom_bar(stat = "identity", position = "dodge", colour = "black") +
+  labs(title = "Deuda total por Lugar de Pago y Año",
+       x = "Lugar de Pago", y = "Deuda total (€)", fill = "Año")
+```
+
+## 6. Deudores críticos (deuda 2017 \> 30 000 €) y distribución del cambio de su deuda.
+
+```{r}
+deudores_criticos <- deuda_combinada %>%
+  filter(deuda17 > 30000)
+
+cat("Número de deudores críticos:", nrow(deudores_criticos), "\n")
+
+ggplot(deudores_criticos, aes(x = cambio_deuda)) +
+  geom_histogram(binwidth = 2000, fill = "firebrick", colour = "black") +
+  labs(title = "Distribución del cambio de deuda en deudores críticos (>30 000 € en 2017)",
+       x = "Cambio de deuda (€)", y = "Frecuencia")
+```
