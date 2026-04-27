@@ -247,7 +247,8 @@ top_makes <- datos_clean |>
   slice_head(n = 10)
 ```
 
-- Vamos a crear una nueva columna de clasificacion de elegilibilidad CAFV simplificada a Elegible / No elegible / Desconocido
+-   Vamos a crear una nueva columna de clasificacion de elegilibilidad CAFV simplificada a Elegible / No elegible / Desconocido
+
 ```{r stringr_extract}
 # str_extract(): Extraer información de la columna de elegibilidad CAFV
 datos_clean <- datos_clean |>
@@ -262,7 +263,9 @@ datos_clean <- datos_clean |>
 datos_clean |> count(cafv_status)
 datos_clean
 ```
-- Vamos a crear una etiqueta del modelo que junte la marca, modelo y año del vehiculo, comprobaremos la cantidad de cada combinacion:
+
+-   Vamos a crear una etiqueta del modelo que junte la marca, modelo y año del vehiculo, comprobaremos la cantidad de cada combinacion:
+
 ```{r stringr_glue}
 # Concatenar strings
 datos_clean <- datos_clean |>
@@ -302,7 +305,6 @@ head(select(datos_clean,vehicle_label))
 ------------------------------------------------------------------------
 
 # Visualización — `ggplot2`
-
 
 ## Distribución del rango eléctrico (BEVs)
 
@@ -406,13 +408,14 @@ h2o.init(
   max_mem_size = "4G"   # Memoria máxima
 )
 
-# Suprimir logs de progreso (compatible con distintas versiones de h2o)
+# Suprimir logs de progreso 
 tryCatch(h2o.no_progress(), error = function(e) invisible(NULL))
 ```
 
 ## Preparación del dataset para H2O
 
 **Objetivo del modelo:** Predecir si un vehículo es un BEV (100% eléctrico) o un PHEV (híbrido enchufable) a partir de sus características.
+
 ```{r}
 datos_clean
 ```
@@ -453,7 +456,7 @@ cat("Variables predictoras:", paste(predictors, collapse = ", "), "\n")
 ## División en train / test
 
 ```{r h2o_split}
-# Dividir en 80% entrenamiento y 20% test, con semilla para reproducibilidad
+# Dividir en 80% entrenamiento y 20% test
 splits <- h2o.splitFrame(
   data  = ev_h2o,
   ratios = c(0.80),
@@ -469,7 +472,7 @@ cat("Test: ", nrow(test_h2o),  "filas\n")
 
 ## AutoML — Selección automática del mejor modelo
 
-- Con autoML vamos a comparar varios modelos para encontrar el optimo:
+-   Con autoML vamos a comparar varios modelos para encontrar el optimo:
 
 ```{r h2o_automl}
 
@@ -480,13 +483,13 @@ automl_result <- h2o.automl(
   leaderboard_frame = test_h2o,
   max_models     = 10,          # Probar hasta 10 modelos
   max_runtime_secs = 120,       # Límite de 2 minutos
-  seed           = 42,
+  seed           = 33,
   sort_metric    = "AUC"        # Ordenar por AUC
 )
 
-# Tabla de clasificación: todos los modelos entrenados
+# Clasificacion de modelo entrenado
 lb <- automl_result@leaderboard
-print(lb, n = 10)
+print(lb)
 ```
 
 ## Mejor modelo y evaluación
@@ -505,7 +508,7 @@ cat("Accuracy: ", round(h2o.accuracy(perf, thresholds = 0.5)[[1]], 4), "\n")
 
 ```{r h2o_confusion}
 # Matriz de confusión
-cat("=== Matriz de confusión (umbral 0.5) ===\n")
+cat(" Matriz de confusión\n")
 h2o.confusionMatrix(perf)
 ```
 
@@ -521,7 +524,7 @@ tryCatch({
     geom_col(fill = "#1A5276", alpha = 0.85) +
     coord_flip() +
     labs(
-      title    = "Importancia de variables — Mejor modelo AutoML",
+      title    = "Importancia de variables con el mejor modelo AutoML",
       subtitle = paste("Modelo:", best_model@model_id),
       x        = NULL,
       y        = "Importancia relativa"

@@ -1,0 +1,169 @@
+---
+title: "UT5_Ej3_EjerciciosMorosidad_vacio"
+output: html_document
+date: "2025-03-31"
+---
+
+# Para morosidad
+
+```{r}
+#Librerias
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(ggplot2)
+library(stringr)
+```
+
+```{r}
+deuda16 <- read_xlsx("morosidad16.xlsx")
+deuda17 <- read_xlsx("morosidad17.xlsx")
+head(deuda16,3)
+head(deuda17,3)
+```
+
+## 1. Crear una nueva variable cambio_deuda que sea la diferencia entre deuda17 y deuda16.
+
+```{r}
+morosidad <- inner_join(deuda16, deuda17, by = "id", suffix = c("_16", "_17"))
+
+# cambio_deuda = diferencia entre la deuda de 2017 y la de 2016
+morosidad <- morosidad %>%
+  mutate(cambio_deuda = deuda17 - deuda16)
+
+head(morosidad)
+```
+
+## 1. Agrupar por la situación de la deuda en 2017 y calcular el promedio de deuda.
+
+```{r}
+morosidad_resumen <- morosidad %>%
+  group_by(`situación_17`) %>%
+  summarise(media_deuda17 = mean(deuda17, na.rm = TRUE))
+
+morosidad_resumen
+```
+
+## 2. Explora la situación de la deuda en 2017 con un histograma con rangos de 5000
+
+```{r}
+ggplot(morosidad, aes(x = deuda17)) +
+  geom_histogram(binwidth = 5000, fill = "steelblue", colour = "green") +
+  labs(title = "Distribución de la deuda en 2017",
+       x = "Deuda 2017 (€)", y = "Frecuencia")
+```
+
+## 3. Agrupar por Estado y representar con un boxplot las deudas de 2016 y 2017.
+
+# Boxplot para deuda16
+
+```{r}
+ggplot(morosidad, aes(x = Estado_16, y = deuda16, fill = Estado_16)) +
+  geom_boxplot() +
+  labs(title = "Distribución de la deuda 2016 por Estado",
+       x = "Estado", y = "Deuda 2016 (€)")
+```
+
+# Boxplot para deuda17
+
+```{r}
+ggplot(morosidad, aes(x = Estado_17, y = deuda17, fill = Estado_17)) +
+  geom_boxplot() +
+  labs(
+    title = "Distribución deudas 2017 por Estado",x = "Estado",
+    y = "Deuda 17(euros)"
+  )
+```
+
+## 4. Representar el cambio_deuda con un gráfico de barras para ver en qué medida aumenta o disminuye la deuda. Para ello crea una nueva variable categórica con rangos de aumento o disminución de la deuda.
+
+## Consideraremos aumento o disminución moderada si es de menos de 5000 y significativa si es de más.
+
+## Puedes usar case_when
+
+```{r}
+morosidad <- morosidad %>%
+  mutate(
+    categoria_cambio = case_when(
+      cambio_deuda <= -5000 ~ "Disminucion significativa",
+      cambio_deuda <  0     ~ "Disminucion moderada",
+      cambio_deuda == 0     ~ "Sin cambio",
+      cambio_deuda <  5000  ~ "Aumento moderado",
+      TRUE                  ~ "Aumento significativo"
+    ),
+    # Orden 
+    categoria_cambio = factor(categoria_cambio, levels = c(
+      "Disminucion significativa", "Disminucion moderada",
+      "Sin cambio",
+      "Aumento moderado", "Aumento significativo"
+    ))
+  )
+
+conteo_cambio <- morosidad %>%
+  count(categoria_cambio)
+
+ggplot(conteo_cambio, aes(x = categoria_cambio, y = n, fill = categoria_cambio)) +
+  geom_col()+
+  geom_text(aes(label = n), vjust = 3)+
+  labs(
+    title = "Cambio de deuda entre 2016 y 2017",
+    x = "Categoría de cambio",
+    y = "Número de personas"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 20, hjust= 0.7),
+    legend.position = "none"
+  )
+```
+
+## 5. Calcula la deuda total por lugar de pago y represéntalo en un gráfico de barras
+
+## Puedes usar la función pivot_longer() y crear dos columnas año y deuda por cada lugar de pago
+
+## para posteriormente agrupar
+
+```{r}
+head(morosidad,3)
+```
+
+```{r}
+morosidad_largo <- morosidad %>%
+  pivot_longer(
+    cols = c(deuda16, deuda17),
+    names_to = "año",
+    values_to = "deuda"
+  )
+morosidad_largo <- morosidad_largo %>%
+  mutate(
+    año = ifelse(año == "deuda16", 2016, 2017),
+    lugar_pago = ifelse(año=="2016",lugar.pago_16,lugar.pago_17)
+  )
+
+deuda_total <- morosidad_largo %>%
+  group_by(lugar_pago) %>%
+  summarise(deuda_total = sum(deuda, na.rm = TRUE))
+
+#########
+
+```
+
+```{r}
+ggplot(deuda_lugar, aes(x = reorder(lugar_pago, -deuda_total), y = deuda_total, fill = anio)) +
+  geom_col(position = "dodge") +
+  geom_text(aes(label = deuda_total), vjust = 2, hjust=1) +
+  labs(
+    title = "Deuda total por lugar de pago",
+    x = "Lugar de pago",
+    y = "Deuda total"
+  )
+```
+
+## 6. Busca los casos de deudores críticos. Consideraremos aquello que tengan más de 30000 euros de deuda en 2017
+
+## y representa la distribución del cambio de su deda
+
+```{r}
+
+```
+
+## ¿qué significan los valores negativos? -\> que deben mucho pero ha disminuido la deuda
