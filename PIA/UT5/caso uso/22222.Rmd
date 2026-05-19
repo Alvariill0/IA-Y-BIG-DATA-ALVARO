@@ -1,0 +1,27 @@
+---
+title: '222222'
+output: html_documentdata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAbElEQVR4Xs2RQQrAMAgEfZgf7W9LAguybljJpR3wEse5JOL3ZObDb4x1loDhHbBOFU6i2Ddnw2KNiXcdAXygJlwE8OFVBHDgKrLgSInN4WMe9iXiqIVsTMjH7z/GhNTEibOxQswcYIWYOR/zAjBJfiXh3jZ6AAAAAElFTkSuQmCC
+date: "2026-04-23"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Aunque este dataset no contiene columnas de fecha explícitas, `lubridate` es útil para trabajar con años y crear períodos.
+
+
+
+```{r lubridate_floor}
+# floor_date() / ceiling_date(): Agrupar por período
+# Agrupamos por "era" de fabricación usando períodos de 2 años
+ev_clean |>
+  mutate(
+    era_inicio = year(floor_date(model_date, unit = "2 years"))
+  ) |>
+  count(era_inicio) |>
+  filter(era_inicio >= 2010) |>
+  arrange(era_inicio)
+```
+

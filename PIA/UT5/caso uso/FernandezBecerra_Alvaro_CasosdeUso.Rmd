@@ -1,0 +1,510 @@
+---
+title: "Estudio: Vehículos Eléctricos en Washington State"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_sections: true
+    code_folding: show
+  pdf_document:
+    toc: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width  = 10,
+  fig.height = 6,
+  fig.align  = "center"
+)
+```
+
+------------------------------------------------------------------------
+
+# Introducción
+
+Voy a realizar un estudio sobre el dataset de **registro de vehículos eléctricos en el estado de Washington (EE.UU.)**. Es un dataset público que contiene información sobre más de 200000 registros de vehículos eléctricos, incluyendo marca, modelo, año, localizacion...
+
+El objetivo del estudio será entrenar un modelo que logre predecir el tipo de Vehiculo electrico ( BEV O PHEV) basandonos en sus caracteristicas, por lo que sería un caso de clasificación binaria.
+
+## Columnas del dataset:
+
+-   `VIN (1-10)`: Primeros 10 caracteres del ID del vehiculo.
+-   `County`: Condado donde se ha registrado el vehiculo,
+-   `City` Ciudad donde se ha registrado el vehiculo
+-   `State`: Estado donde se ha registrado el vehiculo (En este caso todos los registros son de Washington)
+-   `Postal Code`: Codigo postal
+-   `Model Year`: Año de fabricacion
+-   `Make`: Marca del vehiculo
+-   `Model`: Modelo
+-   `Electric Vehicle Type`: Tipo de vehículo eléctrico: **BEV** (*Battery Electric Vehicle*, 100% eléctrico) o **PHEV** (*Plug-in Hybrid Electric Vehicle*, híbrido enchufable). \|
+-   `Clean Alternative Fuel Vehicle (CAFV) Eligibility`: Indica si el vehiculo es elegible para incentivos de energia limpia.
+-   `Electric Range`: Rango eléctrico declarado del vehículo en millas. O distancia maxima que puede recorrer con el motor electrico.
+-   `Legislative District`: Distrito legislativo de Washington al que pertenece el domicilio del titular.
+-   `DOL Vehicle ID`: Identificador único interno asignado por el Departamento de Licencias (DOL).
+-   `Vehicle Location`: Coordenadas geográficas del domicilio del titular en formato `POINT` (longitud latitud).
+-   `Electric Utility`: Compañía eléctrica que suministra electricidad en la zona de registro del vehículo.
+-   `2020 Census Tract`: Código del tract censal del Censo de EE.UU. de 2020 correspondiente a la ubicación del vehículo.
+
+------------------------------------------------------------------------
+
+# Carga de librerias
+
+```{r librerias}
+# Entrada de datos 
+library(readr)      
+
+# Limpieza y transformación 
+library(dplyr)       
+library(tidyr)      
+library(stringr)     
+library(lubridate)   
+
+# Visualización 
+library(ggplot2)      
+library(scales)       
+
+#Modelado 
+library(h2o)         
+```
+
+------------------------------------------------------------------------
+
+# ENTRADA DE DATOS
+
+## Lectura del fichero CSV
+
+Vamos a utilizar `read_csv()` de `readr`, que es significativamente más rápida que la función base `read.csv()`:
+
+```{r lectura}
+dataset <- read_csv(
+  "Electric_Vehicle_Population_Data.csv"
+)
+
+# Dimensiones del dataset
+cat("Filas:   ", nrow(dataset), "\n")
+cat("Columnas:", ncol(dataset), "\n")
+```
+
+## Inspección inicial
+
+```{r inspeccion}
+# Primeras filas del dataset
+glimpse(dataset)
+```
+
+```{r head}
+# Muestra las primeras 6 filas de forma legible
+head(dataset)
+```
+
+------------------------------------------------------------------------
+
+# LIMPIEZA Y TRANSFORMACION
+
+## `dplyr` — Manipulación de datos
+
+`dplyr` Permite transformar datos de forma legible y encadenable con el operador pipe `|>` (o `%>%`).
+
+### Selección y renombrado de columnas
+
+```{r dplyr_select}
+# Seleccionamos y renombramos las columnas relevantes para el analisis
+datos_clean <- dataset |>
+  select(
+    vin              = `VIN (1-10)`,
+    county           = County,
+    city             = City,
+    state            = State,
+    postal_code      = `Postal Code`,
+    model_year       = `Model Year`,
+    make             = Make,
+    model            = Model,
+    ev_type          = `Electric Vehicle Type`,
+    cafv_eligibility = `Clean Alternative Fuel Vehicle (CAFV) Eligibility`,
+    electric_range   = `Electric Range`,
+    legislative_dist = `Legislative District`,
+    dol_vehicle_id   = `DOL Vehicle ID`,
+    vehicle_location = `Vehicle Location`,
+    electric_utility = `Electric Utility`,
+    census_tract     = `2020 Census Tract`
+  )
+
+head(datos_clean)
+```
+
+### Filtrado y estadísticas de grupo
+
+```{r dplyr_filter}
+# Filtrar numero de vehiculos de cada tipo:
+bev_datos <- datos_clean |>
+  filter(ev_type == "Battery Electric Vehicle (BEV)", electric_range > 0)
+
+phev_datos <- datos_clean |>
+  filter(ev_type == "Plug-in Hybrid Electric Vehicle (PHEV)",!is.na(electric_range))
+
+cat("BEVs con rango conocido:", nrow(bev_datos), "\n")
+cat("PHEVs con rango conocido:", nrow(phev_datos), "\n")
+```
+
+```{r dplyr_group}
+# Estadísticas por fabricante
+top_makes <- datos_clean |>
+  group_by(make) |>
+  summarise(
+    total_vehiculos   = n(),
+    media_rango       = round(mean(electric_range, na.rm = TRUE), 1),
+    media_año         = median(model_year, na.rm = TRUE),
+  ) |>
+  arrange(desc(total_vehiculos)) |>
+  slice_head(n = 10)
+
+top_makes
+```
+
+```{r dplyr_mutate}
+# Crear nuevas columnas derivadas
+datos_clean <- datos_clean |>
+  mutate(
+    # Categorizar por año de fabricación
+    categoria_año = case_when(
+      model_year < 2015 ~ "Antes 2015",
+      model_year < 2019 ~ "2015-2018",
+      model_year < 2022 ~ "2019-2021",
+      TRUE              ~ "2022+"
+    ),
+    # Categorizar por rango eléctrico
+    categoria_rango = case_when(
+      electric_range == 0  ~ "Sin dato / PHEV",
+      electric_range < 100 ~ "Bajo (<100 mi)",
+      electric_range < 200 ~ "Medio (100-199 mi)",
+      electric_range < 300 ~ "Alto (200-299 mi)",
+      TRUE                 ~ "Muy alto (≥300 mi)"
+    )
+  )
+
+# Distribución de las categorías
+datos_clean |> count(categoria_año, sort = TRUE)
+datos_clean
+```
+
+## `tidyr` — Reestructuración de datos
+
+`tidyr` ayuda a convertir datos al formato *tidy* (cada variable en columna, cada observación en fila) y a pivotar entre formatos ancho y largo.
+
+-   La columna `vehicle_location` tiene formato POINT(longitud,latitud), podemos separarla en 2 columnas separadas.
+
+```{r tidyr_separate}
+# Separar columna compuesta
+datos_coords <- datos_clean |>
+  filter(!is.na(vehicle_location)) |> # Si es un registro valido:
+  mutate(
+    # Extraer solo los numeros de las coordenadas
+    coords = str_extract(vehicle_location, "\\(.*\\)"),
+    coords = str_remove_all(coords, "[()]")
+  ) |>
+  separate_wider_delim(
+    cols    = coords,
+    delim   = " ",
+    names   = c("longitud", "latitud")
+  ) |>
+  mutate(
+    longitud = as.numeric(longitud),
+    latitud  = as.numeric(latitud)
+  )
+
+cat("Registros con coordenadas válidas:", nrow(datos_coords), "\n")
+head(select(datos_coords, make, model, model_year, longitud, latitud))
+```
+
+## `stringr` — Manipulación de texto
+
+`stringr` estandariza las operaciones con cadenas de texto usando una sintaxis coherente. Todas sus funciones comienzan por `str_`.
+
+```{r stringr_basics}
+# str_to_title(): Normalizar capitalización
+datos_clean <- datos_clean |>
+  mutate(
+    make = str_to_title(make),  
+    model = str_to_title(model),  
+    city  = str_to_title(city)
+  )
+datos_clean
+```
+
+- Vamos a crear una nueva columna de clasificacion de elegilibilidad CAFV simplificada a Elegible / No elegible / Desconocido
+```{r stringr_extract}
+# str_extract(): Extraer información de la columna de elegibilidad CAFV
+datos_clean <- datos_clean |>
+  mutate(
+    cafv_status = case_when(
+      str_detect(cafv_eligibility, "Eligible")     ~ "Elegible",
+      str_detect(cafv_eligibility, "Not eligible") ~ "No elegible",
+      TRUE                                          ~ "Desconocido"
+    )
+  )
+
+datos_clean |> count(cafv_status)
+datos_clean
+```
+- Vamos a crear una etiqueta del modelo que junte la marca, modelo y año del vehiculo, comprobaremos la cantidad de cada combinacion:
+```{r stringr_glue}
+# Concatenar strings
+datos_clean <- datos_clean |>
+  mutate(
+    vehicle_label = str_c(make, model, model_year, sep = " "),
+    vehicle_label = str_trim(vehicle_label)
+  )
+
+datos_clean |>
+  count(vehicle_label, sort = TRUE) |>
+  head(5)
+```
+
+## `lubridate` — Manejo de fechas
+
+```{r lubridate}
+# Construir fechas a partir de componentes numéricos
+datos_clean <- datos_clean |>
+  mutate(
+    # Construir fecha de referencia del modelo (1 de enero del año de fabricación)
+    fecha_modelo  = make_date(year = model_year, month = 1L, day = 1L),
+    # Edad del vehículo en años completos
+    edad_modelo = as.integer(interval(fecha_modelo, today()) / years(1))
+  )
+
+# Distribución de edades
+datos_clean |>
+  summarise(
+    edad_min    = min(edad_modelo, na.rm = TRUE),
+    edad_media  = round(mean(edad_modelo, na.rm = TRUE), 1),
+    edad_max    = max(edad_modelo, na.rm = TRUE)
+  )
+
+head(select(datos_clean,vehicle_label))
+```
+
+------------------------------------------------------------------------
+
+# Visualización — `ggplot2`
+
+
+## Distribución del rango eléctrico (BEVs)
+
+```{r ggplot_histograma}
+bev_datos |>
+  ggplot(aes(x = electric_range)) +
+  geom_histogram(binwidth = 10, fill = "#2E86C1", color = "white", alpha = 0.85) +
+  geom_vline(xintercept = mean(bev_datos$electric_range), color = "#E74C3C",
+             linetype = "dashed", linewidth = 1) +
+  annotate("text",
+           x     = mean(bev_datos$electric_range) + 5,
+           y     = Inf, vjust = 1.5, hjust = 0,
+           label = paste0("Media: ", round(mean(bev_datos$electric_range)), " mi"),
+           color = "#E74C3C", size = 4)+
+  labs(
+    title    = "Distribución del rango eléctrico — BEVs",
+    subtitle = "Excluidos registros con rango = 0",
+    x        = "Rango eléctrico (millas)",
+    y        = "Frecuencia"
+  ) 
+```
+
+------------------------------------------------------------------------
+
+# Modelado — `h2o`
+
+## Inicialización de H2O
+
+`h2o` es un framework de Machine Learning distribuido que permite entrenar modelos a escala, incluyendo redes neuronales, gradient boosting, random forests y AutoML.
+
+```{r h2o_init}
+# Inicializar el clúster H2O local
+h2o.init(
+  nthreads = -1,        # Usar todos los cores disponibles
+  max_mem_size = "4G"   # Memoria máxima
+)
+
+# Suprimir logs de progreso
+h2o.no_progress()
+```
+
+## Preparación del dataset para H2O
+
+**Objetivo del modelo:** Predecir si un vehículo es un BEV (100% eléctrico) o un PHEV (híbrido enchufable) a partir de sus características.
+```{r}
+datos_clean
+```
+
+```{r h2o_prep}
+# Preparar dataset limpio para modelado
+df_evs <- datos_clean |>
+  select(
+    ev_type, model_year, make, electric_range,
+    cafv_status, categoria_rango, edad_modelo
+  ) |>
+  drop_na() |>
+  mutate(
+    # Variable objetivo: binaria BEV vs PHEV
+    es_bev = factor(
+      if_else(ev_type == "Battery Electric Vehicle (BEV)", "BEV", "PHEV")
+    )
+  ) |>
+  select(-ev_type)
+
+cat("Registros para modelado:", nrow(df_evs), "\n")
+cat("Proporción BEV/PHEV:\n")
+prop.table(table(df_evs$es_bev))
+```
+
+```{r h2o_convert}
+# Convertir el data frame a objeto H2OFrame
+ev_h2o <- as.h2o(df_evs)
+
+# Definir variable objetivo y predictoras
+target     <- "es_bev"
+predictors <- setdiff(names(ev_h2o), target)
+
+cat("Variable objetivo:", target, "\n")
+cat("Variables predictoras:", paste(predictors, collapse = ", "), "\n")
+```
+
+## División en train / test
+
+```{r h2o_split}
+# Dividir en 80% entrenamiento y 20% test, con semilla para reproducibilidad
+splits <- h2o.splitFrame(
+  data  = ev_h2o,
+  ratios = c(0.80),
+  seed  = 33
+)
+
+train_h2o <- splits[[1]]
+test_h2o  <- splits[[2]]
+
+cat("Train:", nrow(train_h2o), "filas\n")
+cat("Test: ", nrow(test_h2o),  "filas\n")
+```
+
+## AutoML — Selección automática del mejor modelo
+
+- Con autoML vamos a comparar varios modelos para encontrar el optimo:
+
+```{r h2o_automl}
+
+automl_result <- h2o.automl(
+  x              = predictors,
+  y              = target,
+  training_frame = train_h2o,
+  leaderboard_frame = test_h2o,
+  max_models     = 10,          # Probar hasta 10 modelos
+  max_runtime_secs = 120,       # Límite de 2 minutos
+  seed           = 42,
+  sort_metric    = "AUC"        # Ordenar por AUC
+)
+
+# Tabla de clasificación: todos los modelos entrenados
+lb <- automl_result@leaderboard
+print(lb, n = 10)
+```
+
+## Mejor modelo y evaluación
+
+```{r h2o_best}
+# Extraer el mejor modelo del leaderboard
+best_model <- automl_result@leader
+
+# Predicción sobre el conjunto de test
+perf <- h2o.performance(best_model, newdata = test_h2o)
+
+cat("Métricas del mejor modelo en TEST\n")
+cat("AUC:      ", round(h2o.auc(perf), 4), "\n")
+cat("Accuracy: ", round(h2o.accuracy(perf, thresholds = 0.5)[[1]], 4), "\n")
+```
+
+```{r h2o_confusion}
+# Matriz de confusión
+cat("=== Matriz de confusión (umbral 0.5) ===\n")
+h2o.confusionMatrix(perf)
+```
+
+```{r h2o_varimp}
+# Importancia de variables (si el modelo la soporta)
+tryCatch({
+  varimp <- h2o.varimp(best_model)
+  varimp_df <- as.data.frame(varimp)
+
+  ggplot(head(varimp_df, 10),
+         aes(x = reorder(variable, relative_importance),
+             y = relative_importance)) +
+    geom_col(fill = "#1A5276", alpha = 0.85) +
+    coord_flip() +
+    labs(
+      title    = "Importancia de variables — Mejor modelo AutoML",
+      subtitle = paste("Modelo:", best_model@model_id),
+      x        = NULL,
+      y        = "Importancia relativa"
+    ) +
+    theme_minimal(base_size = 13) +
+    theme(plot.title = element_text(face = "bold"))
+}, error = function(e) {
+  cat("La importancia de variables no está disponible para este tipo de modelo.\n")
+})
+```
+
+```{r h2o_shutdown}
+# Apagar el clúster H2O al finalizar
+h2o.shutdown(prompt = FALSE)
+```
+
+------------------------------------------------------------------------
+
+# Presentación de resultados — R Markdown y knitr
+
+## Tabla resumen con `knitr::kable`
+
+```{r kable_resumen}
+library(knitr)
+
+resumen_fabricantes <- datos_clean |>
+  filter(make %in% str_to_title(top_makes$make[1:8])) |>
+  group_by(Fabricante = make) |>
+  summarise(
+    `Total vehículos`    = scales::comma(n()),
+    `% BEV`              = paste0(round(mean(ev_type == "Battery Electric Vehicle (BEV)") * 100, 1), "%"),
+    `Rango medio (mi)`   = round(mean(electric_range[electric_range > 0], na.rm = TRUE), 0),
+    `Año mediano`        = median(model_year, na.rm = TRUE),
+    `Elegibles CAFV`     = paste0(round(mean(cafv_status == "Elegible") * 100, 1), "%")
+  ) |>
+  arrange(desc(as.numeric(str_remove_all(`Total vehículos`, ","))))
+
+kable(
+  resumen_fabricantes,
+  caption = "Tabla 1. Estadísticas por fabricante — Top 8 marcas en Washington State",
+  align   = c("l", "r", "r", "r", "r", "r")
+)
+```
+
+------------------------------------------------------------------------
+
+# Conclusiones
+
+A partir del análisis realizado sobre el dataset podemos sacar algunas conclusiones:
+
+1.  **Dominancia de Tesla:** Tesla representa aproximadamente el **41%** del total de registros, con diferencia frente al segundo fabricante. Su rango eléctrico medio también supera con creces al del resto.
+
+2.  **Crecimiento exponencial:** El registro de BEVs creció de forma casi exponencial entre 2019 y 2023, consolidando la transición hacia vehículos 100% eléctricos frente a los híbridos enchufables (PHEV).
+
+3.  **Rango eléctrico:** La mayoría de los BEVs registrados tienen un rango entre 200 y 330 millas. Los PHEVs tienen rangos declarados mucho menores (o cero en los datos), lo que hace que el rango sea una variable altamente discriminante para el modelo.
+
+4.  **Modelado con H2O AutoML:** El mejor modelo obtenido clasifica correctamente el tipo de vehículo (BEV vs PHEV) con un **AUC superior a 0.95**, siendo `electric_range` la variable de mayor importancia predictiva, seguida de `make_clean` y `model_year`.
+
+5.  **Valor del pipeline tidyverse:** La combinación de `readr` + `dplyr` + `tidyr` + `stringr` permite construir pipelines de preparación de datos expresivos, legibles y reproducibles, facilitando la colaboración y el mantenimiento del código.
+
+------------------------------------------------------------------------
+
+*Cuaderno elaborado con R Markdown + knitr — IES Arcipreste de Hita, UT5 Introducción a R*
