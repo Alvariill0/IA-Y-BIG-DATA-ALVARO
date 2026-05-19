@@ -1,0 +1,133 @@
+---
+title: "Examen Análisis de Datos con county_complete"
+output: html_document
+autor: ÁLVARO FERNANDEZ BECERRA
+---
+
+```{r}
+library(openintro)
+library(dplyr)
+library(ggplot2)
+data("county_complete")
+```
+
+## Ejercicio 1: Exploración y limpieza
+
+### - Muostrar una descripcion del dataset y sus formatos de columnas:
+
+```{r}
+dataset <- county_complete
+summary(dataset)
+#salida contraida
+```
+
+```{r}
+glimpse(dataset)
+#salida contraida
+```
+
+```{r}
+head(dataset,10)
+```
+
+-   Verificar y eliminar valores nulos
+
+```{r}
+county_clean <- dataset %>%
+  filter(!is.na(pop2000), !is.na(pop2017),!is.na(pac_isl_owned_firms_2007), !is.na(asian_owned_firms_2007))
+```
+
+## Ejercicio 2. Calcula el porcentaje de crecimiento de la población entre el año 2000 y el 2017.
+
+Crea una nueva columna con esta información. Muestra las 10 primeras filas solo con datos clave y esta nueva columna. Vamos a mostrar por estado cuanto cambio la población a lo largo de esos 7 años:
+
+```{r}
+county_clean <- county_clean %>%
+  mutate(crecimiento_2000_2017 = pop2017 - pop2000)
+
+select(county_clean,state,name, pop2017,pop2000, crecimiento_2000_2017)
+```
+
+## Ejercicio 3: Clasifica los condados en categorías segun su población en 2017
+
+Hay que distinguir entre: - "Pequeño" \< 20.000 - "Mediano" \>= 20.000 & \<= 100.000 - "Grande" \> 100.000
+
+Añadiendo una nueva columna `size_category`.
+
+```{r}
+county_clean <- county_clean %>%
+  mutate(size_category = case_when(
+    pop2017 <=  20000 ~ "Pequeño",
+    pop2017 >  20000 & pop2017 <100000  ~ "Mediano",
+    pop2017 >= 100000 ~ "Grande"
+  ))
+select(county_clean,state,name,pop2017,size_category)
+```
+
+## Ejercicio 4: Agrupa los condados por la categoría calculada anteriormente.
+- Calcula la frecuencia en cada grupo en un nuevo data.frame llamado county_by_size. Muestra el nuevo dataframe.
+
+```{r}
+county_by_size <- county_clean%>%
+  group_by(size_category) %>%
+  count(size_category)
+county_by_size
+```
+## 4.1: Crea un grafico de barras para representarlo.
+```{r}
+ggplot(county_by_size, aes(x = size_category, y = n, fill = size_category)) +
+  geom_bar(stat = "identity", colour = "black") +
+  labs(title = "Frecuencia por grupo",
+       x = "Tamaño", y = "Frecuencia")
+```
+
+## Ejercicio 5: Calcula la media nacional del porcentaje de personas con estudios universitarios (sobre bachelors_2017) y muestra dicho valor:
+```{r}
+media_universitarios <- county_clean %>%
+  group_by(state) %>%
+  summarise(Media_universitarios = mean(bachelors_2017, na.rm = TRUE))
+
+media_universitarios
+```
+
+## Ejercicio 6: Calcula la pobrezamedia segun el tamaño del condado
+- A partir de poverty_2017 en un nuevo dataframe `poverty_by_size`.
+```{r}
+poverty_by_size <- county_clean %>%
+  group_by(size_category) %>%
+   summarise(media_pobreza = mean(poverty_2017, na.rm = TRUE))
+poverty_by_size
+```
+## Ejercicio 7: Grafico de disperison:
+- Qué relacion tiene la poblacion de cada condado en 2017 respecto a su nivel de pobreza en ese año.
+- Cómo interpretas este grafico?
+
+```{r}
+ggplot(county_clean, aes(x = state, y = pop2017)) +
+  geom_point()+
+  labs(title = "Relacion poblacion - pobreza (2017)",
+       x = "Estado", y = "Poblacion")
+```
+
+## Ejercicio 8: Calcular el ingreso per capita promedio por estado en 2017 `per_capita_income_2017`
+- En un nuevo dataframe `income_by_state` y mostrarlo.
+- Representar en boxplot.
+
+```{r}
+income_by_state <- county_clean %>%
+  group_by(state) %>%
+  summarise(Media_income = mean(per_capita_income_2017, na.rm = TRUE))
+
+income_by_state
+```
+### Representacion boxplot:
+```{r}
+# Representacion Boxplot:
+ggplot(income_by_state, aes(x = state, y = Media_income, fill = state)) +
+  geom_boxplot(outlier.colour = "red") +
+  labs(title = "Ingreso per capita promedio por estado en 2017",
+       x = "Estado", y = "Ingreso") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1),
+        legend.position = "none")
+```

@@ -26,3 +26,14 @@ med_ord <- medias[order(medias, decreasing=TRUE)]
 med_ord
 
 ```
+
+```{r}
+quita.mayores <- function(df, k) {
+  if (k >= ncol(df) || k < 0 || k != floor(k)) return(NULL)
+  
+  medias <- apply(df, 2, mean, na.rm = TRUE)
+  ord <- order(medias, decreasing = TRUE)
+  cols_quitar <- ord[1:k]
+  df[, -cols_quitar, drop = FALSE]
+}
+```

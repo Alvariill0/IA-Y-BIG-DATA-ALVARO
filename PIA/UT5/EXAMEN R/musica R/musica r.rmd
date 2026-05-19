@@ -1,0 +1,147 @@
+```{r}
+library(tidyverse)
+library(stringr)
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(ggplot2)
+
+
+# Cargamos los datos
+datos <- read_csv("artists.csv")
+
+#0. Limpieza de datos
+# Eliminamos filas con datos faltantes en las columnas principales
+datos_sin_na <- filter(datos, !is.na(artist_mb) & !is.na(artist_lastfm) & !is.na(country_mb) & !is.na(country_lastfm))
+
+# Eliminamos filas con datos en idiomas o caracteres no identificables
+# Usamos una expresión regular para filtrar solo caracteres permitidos
+expresion_regular <- "^[\\p{L}0-9 .,;:'\"!?&()\\-]+$" # Esta expresión permite letras de cualquier idioma, números y algunos símbolos comunes.
+datos_limpios <- filter(datos_sin_na, str_detect(artist_mb, expresion_regular) &
+                          str_detect(artist_lastfm, expresion_regular) &
+                          str_detect(country_mb, expresion_regular) &
+                          str_detect(country_lastfm, expresion_regular))
+
+# Guardar los datos limpios
+write_csv(datos_limpios, "datos_limpios.csv")
+```
+
+```{r}
+# Contar el número total de artistas únicos
+total_artistas <- n_distinct(datos_limpios$artist_lastfm)
+
+# Calcular estadísticas descriptivas para oyentes y reproducciones
+media_oyentes <- mean(datos_limpios$listeners_lastfm, na.rm = TRUE)
+mediana_oyentes <- median(datos_limpios$listeners_lastfm, na.rm = TRUE)
+desv_std_oyentes <- sd(datos_limpios$listeners_lastfm, na.rm = TRUE)
+
+media_scrobbles <- mean(datos_limpios$scrobbles_lastfm, na.rm = TRUE)
+mediana_scrobbles <- median(datos_limpios$scrobbles_lastfm, na.rm = TRUE)
+desv_std_scrobbles <- sd(datos_limpios$scrobbles_lastfm, na.rm = TRUE)
+
+# Identificar los países con más artistas representados
+paises_conteo <- count(datos_limpios, country_lastfm, sort = TRUE)
+
+# Seleccionar los top 10 países con más artistas representados para el gráfico
+top_paises <- head(paises_conteo, 10)
+top_paises
+```
+
+```{r}
+# Representar gráficamente los países con más artistas representados
+ggplot(data = top_paises, aes(x = reorder(country_lastfm, n), y = n)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Top 10 Países con Más Artistas Representados",
+       x = "País",
+       y = "Número de Artistas") +
+  coord_flip()
+
+#2
+
+# Expandir solo las etiquetas
+datos_etiquetas_expandidas <- separate_rows(datos_limpios, tags_lastfm, sep = ";")
+
+# Realizar el conteo de etiquetas por país
+conteo_etiquetas_paises <- count(datos_etiquetas_expandidas, country_lastfm, tags_lastfm, sort = TRUE)
+
+# Preparar los datos para el gráfico sin 
+top_etiquetas_paises <- head(conteo_etiquetas_paises, 10)
+
+# Crear un gráfico de dispersión (o similar) adecuado para datos categóricos
+ggplot(top_etiquetas_paises, aes(x = country_lastfm, y = tags_lastfm, size = n)) +
+  geom_point(alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Top 10 Relaciones entre Países y Etiquetas",
+       x = "País",
+       y = "Etiqueta",
+       size = "Frecuencia") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r}
+#3
+
+#Verificar Artistas Duplicados
+artistas_mb_duplicados <- datos_limpios[duplicated(datos_limpios$artist_mb) | duplicated(datos_limpios$artist_mb, fromLast = TRUE), ]
+artistas_lastfm_duplicados <- datos_limpios[duplicated(datos_limpios$artist_lastfm) | duplicated(datos_limpios$artist_lastfm, fromLast = TRUE), ]
+
+# Analizar los duplicados si es necesario
+print(artistas_mb_duplicados)
+print(artistas_lastfm_duplicados)
+
+#Verificar Inconsistencias Entre MusicBrainz y Last.fm
+inconsistencias_artistas <- datos_limpios[datos_limpios$artist_mb != datos_limpios$artist_lastfm, ]
+
+# Mostrar inconsistencias
+print(inconsistencias_artistas)
+```
+
+```{r}
+#4
+#Contar artistas por país
+conteo_artistas_pais <- count(datos_limpios, country_lastfm, sort = TRUE)
+
+#Calcular el total de artistas
+total_artistas <- sum(conteo_artistas_pais$n)
+
+#Añadir una columna de porcentaje al dataframe
+conteo_artistas_pais$porcentaje <- (conteo_artistas_pais$n / total_artistas) * 100
+
+# Filtrar países con al menos 5% de representación
+paises_filtrados <- filter(conteo_artistas_pais, porcentaje >= 3)
+
+
+ggplot(data = paises_filtrados, aes(x = reorder(country_lastfm, n), y = n, fill = country_lastfm)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = RColorBrewer::brewer.pal(n = 9, name = "Pastel1")) +
+  labs(title = "Distribución de Artistas por País", x = "País", y = "Número de Artistas") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggplot(data = paises_filtrados, aes(x = "", y = n, fill = country_lastfm)) +
+  geom_bar(width = 1, stat = "identity") +
+  scale_fill_manual(values = RColorBrewer::brewer.pal(n = 9, name = "Pastel1")) +
+  coord_polar("y") +
+  labs(title = "Distribución de Artistas por País", x = "", y = "", fill = "País") +
+  theme_void()
+```
+
+```{r}
+# 5
+
+# Tomar una muestra del 60% de los datos
+datos_muestra <- datos_limpios[sample(nrow(datos_limpios), size = nrow(datos_limpios) * 0.6), ]
+
+
+# Crear un gráfico de dispersión
+ggplot(data = datos_muestra, aes(x = listeners_lastfm, y = scrobbles_lastfm)) +
+  geom_point(aes(color = country_lastfm), alpha = 0.6) +
+  scale_color_brewer(palette = "Pastel1") +
+  labs(title = "Relación entre Oyentes y Reproducciones",
+       x = "Número de Oyentes",
+       y = "Número de Reproducciones",
+       color = "País") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+```
